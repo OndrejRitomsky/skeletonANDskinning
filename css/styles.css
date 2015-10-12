@@ -1,0 +1,52 @@
+body, #container, #controlPanel {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #AAAAAA;
+}
+
+body {
+    overflow: hidden;
+    min-height: 100%;
+}
+
+#description {
+    padding: 5px 0px 5px 15px;
+    font-style: italic;
+    font-size: 16px;
+}
+
+#container {
+    min-height: 100%;
+}
+
+html {
+    height: 100%;
+}
+
+#controlPanel {
+    border-bottom: 2px black solid;
+}
+
+#canvasPanel {
+    margin: 0px;
+    padding: 0px;
+    float: left;
+    display: block;
+}
+
+#canvas {
+    margin:0px;
+    padding: 0;
+    border-right: 2px solid black;
+}
+
+#editorPanel {
+    width: 200px;
+    padding: 0px 0px 0px 10px;
+    float: left;
+}
+
+.hidden {
+    display: none;
+}

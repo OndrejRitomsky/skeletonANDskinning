@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="css/styles.css" rel="stylesheet">
+    <title>Skeleton & Skinning</title>
+</head>
+<body>
+<div id="container">
+    <div id="controlPanel">
+        <div id="controls">
+            <input type="button" value="showEditorTest" id="open">
+            <input type="button" value="closeEditorTest" id="close">
+            <input type="button" value="drawSkeleton" id="drawSkeleton">
+            <input type="button" value="move" id="move">
+            <input type="button" value="join todo" id="join">
+            <input type="button" value="destroy todo" id="destroy">
+            <input type="button" value="Forward Kinematics" id="forwardKinematics">
+        </div>
+
+        <div id="description">
+        </div>
+
+    </div>
+    <div id="canvasPanel">
+        <canvas id="canvas" width="800" height="400"></canvas>
+    </div>
+    <div id="editorPanel">
+    </div>
+</div>
+
+<script src="js/jquery.js"></script>
+<script src="js/Canvas.js"></script>
+<script src="js/Point.js"></script>
+<script src="js/app.js"></script>
+<script src="js/Editor.js"></script>
+<script src="js/init.js"></script>
+<script src="js/bone.js"></script>
+</body>
+</html>
