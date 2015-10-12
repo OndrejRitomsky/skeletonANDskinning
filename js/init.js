@@ -26,20 +26,26 @@ $(function () {
 
     // create resources for strings!!
     $("#drawSkeleton").click(function () {
-        canvas.drawSkeletonButtonClick.call(canvas);
+        canvas.drawSkeletonButtonClick();
         app.setDescription("You can draw skeleton with left click.");
     });
 
     // treba tu call, asi ne
     $("#move").click(function () {
-        canvas.moveButtonClick.call(canvas);
+        canvas.moveButtonClick();
         app.setDescription("You can move joint, start by selecting one.");
     });
 
     $("#forwardKinematics").click(function () {
-        canvas.forwardKinematicsButtonClick.call(canvas);
+        canvas.forwardKinematicsButtonClick();
         app.setDescription("Forward blabla");
     });
+
+    $("#destroy").click(function () {
+        canvas.destroyButtonClick();
+    });
+
+
 
     app.setDescription("Use left click to select joint, which is useless");
 

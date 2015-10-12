@@ -3,6 +3,7 @@ function Point(x, y, selected) {
     this.y = y || 0;
     this.selected = !!selected;
     this.bone = null;
+    this.highlighted = false;
 }
 
 Point.prototype.RADIUS = 5;
@@ -22,10 +23,10 @@ Point.prototype.radiansTo = function (point) {
 };
 
 Point.prototype.draw = function (context, selected) {
-    context.beginPath();
-    context.fillStyle = selected || this.selected ? SELECTED_COLOR : DEFAULT_COLOR;
-    context.arc(this.x, this.y, this.RADIUS, 0, 2 * Math.PI);
-    context.fill();
+    var position = {x: this.x, y: this.y};
+    var color = this.selected || selected ? SELECTED_COLOR : DEFAULT_COLOR;
+    color = this.highlighted ? HIGHLIGHT_COLOR : color;
+    drawDiskPart(context, position, this.RADIUS, color, 0, 2*Math.PI);
 };
 
 Point.prototype.positionCollide = function (position) {
@@ -35,3 +36,13 @@ Point.prototype.positionCollide = function (position) {
     }
     return false;
 };
+
+Point.prototype.deselect = function(){
+    this.selected = false;
+};
+
+
+Point.prototype.select = function(){
+    this.selected = true;
+};
+
