@@ -91,7 +91,6 @@ Canvas.prototype.leftClick = function (point) {
 };
 
 Canvas.prototype.cancelAll = function () {
-    this.editObjects = [];
     this.resetState();
 
     if (this.savedPosition){
