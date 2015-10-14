@@ -165,18 +165,22 @@ Canvas.prototype.update = function () {
     }
 
     if (this.state == CANVAS_STATES.FORWARD_KINEMATICS && this.selectedObject) {
-        this.selectedObject.x = this.mousePos.x;
-        this.selectedObject.y = this.mousePos.y;
-
         var bone = this.selectedObject.bone;
-
+        var angle = bone.startPoint.radiansTo(new Point(this.mousePos.x, this.mousePos.y));
+        this.selectedObject.x = bone.startPoint.x + Math.cos(angle)*bone.length;
+        this.selectedObject.y = bone.startPoint.y + Math.sin(angle)*bone.length;
 
         bone.highlightAll(true);
         console.log(this.selectedObject.highlighted);
-        bone.setLength();
-        var startPoint = bone.parent.startPoint;
-        var degInRad = startPoint.radiansTo(bone.startPoint) - bone.startPoint.radiansTo(this.selectedObject);
-        bone.setAngle(-1 * degInRad);
+        var degInRad;
+        if(bone.parent) {
+            var startPoint = bone.parent.startPoint;
+            degInRad = startPoint.radiansTo(bone.startPoint) - bone.startPoint.radiansTo(this.selectedObject);
+            bone.setAngle(-1 * degInRad);
+        }else{
+            degInRad = bone.startPoint.radiansTo(this.selectedObject);
+            bone.setAngle(degInRad);
+        }
     }
 };
 
@@ -215,12 +219,8 @@ Canvas.prototype.creatingSkeleton = function (point) {
 
     var startPoint = this.selectedObject;
     var endPoint = new Point(point.x, point.y);
-
-    var bone = new Bone(startPoint, endPoint);
-    if (startPoint.bone){
-        startPoint.bone.children.push(bone);
-        bone.parent = startPoint.bone;
-    }
+    var bone = new Bone(startPoint, endPoint, this.selectedObject.bone);
+    
     endPoint.bone = bone;
     this.objects.push(bone);
     this.selectedObject = endPoint;

@@ -13,7 +13,7 @@ function Bone(startPoint, endPoint, parent) {
 
     this.children = [];
     this.length = startPoint.getDistance(endPoint);
-    this.parent = !!parent;
+    this.parent = parent;
 
     if (!this.parent) {
         this.angle = startPoint.radiansTo(endPoint);
