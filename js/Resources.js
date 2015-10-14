@@ -1,4 +1,4 @@
-var RESOURCES = {
+var Resources = {
     todo: "abc"
 
 

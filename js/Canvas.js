@@ -339,6 +339,18 @@ Canvas.prototype.move = function (point) {
     }
 
     if (this.selectedObject) {
+        var bone = this.selectedObject.bone;
+
+        // TODO fix with endpoint correction
+        if (bone.parent){
+            bone.parent.recalculateAngle();
+        }
+        bone.recalculateAngle();
+
+        for (var i = 0; i < bone.children; i++){
+            bone.children[i].recalculateAngle();
+        }
+
         this.savedPosition = null;
         this.app.setDescription("You can move joint, start by selecting one.");
         this.deselect();
@@ -375,29 +387,43 @@ Canvas.prototype.destroyButtonClick = function () {
         return;
     }
 
-    if (this.selectedObjectType = SELECTED_OBJECT_TYPE.BONE) {
-        var parent = this.selectedObject.parent;
-        var children = this.selectedObject.children;
+    var self = this;
+    function removeBone(bone){
+        var parent = bone.parent;
+        var children = bone.children;
         var i;
         if (!parent && children.length > 0) {
+            console.log("a");
             for (i = 0; i < children.length; i++) {
-                children.parent = null;
-                // TODO need to set angles, this was main parent!
+                children[i].parent = null;
+                children[i].recalculateAngle();
             }
-            this.removeBone(this.selectedObject);
+            self.removeBone(bone);
+
         } else if (parent) {
-            parent.removeChild(this.selectedObject);
+            parent.removeChild(bone);
             for (i = 0; i < children.length; i++) {
                 parent.children.push(children[i]);
+                children[i].parent = parent;
                 children[i].startPoint = parent.endPoint;
-                // TODO need to set angles
+                children[i].recalculateAngle();  //  A   C    D
             }
-            this.removeBone(this.selectedObject);
-        } else if (!parent && children.length == 0) {
-            this.removeBone(this.selectedObject);
-        }
-    } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.ARRAY) {
+            self.removeBone(bone);
+            console.log(self.bones);
 
+        } else if (!parent && children.length == 0) {
+            console.log("c");
+            self.removeBone(bone);
+        }
+    }
+
+    if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
+        removeBone(this.selectedObject);
+
+    } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.ARRAY) {
+        for (var i = 0; i < this.selectedObject.length; i++){
+            removeBone(this.selectedObject[i]);
+        }
     }
 
     this.deselect();

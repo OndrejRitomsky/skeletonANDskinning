@@ -28,10 +28,6 @@ function Bone(startPoint, endPoint, parent) {
 
 Bone.prototype.LINE_WIDTH = 3;
 
-Bone.prototype.setLength = function () {
-    this.length = this.startPoint.getDistance(this.endPoint);
-};
-
 
 /**
  * Add child to parent bone. *
@@ -87,10 +83,21 @@ Bone.prototype.setAngle = function (angle) {
     for (var i = 0; i < this.children.length; i++) {
         this.children[i].setStartPoint(this.getEndPoint());
     }
-    //this.angle += angle; //- mozno... rozhodne ondro
 };
 
-//  --------------------------------draw related
+Bone.prototype.recalculateAngle = function () {
+    this.recalculateLength();
+    if (!this.parent) {
+        this.angle = this.startPoint.radiansTo(this.endPoint);
+    } else {
+        this.angle = (-1) * (this.parent.startPoint.radiansTo(this.parent.endPoint) - this.startPoint.radiansTo(this.endPoint));
+    }
+};
+
+Bone.prototype.recalculateLength = function () {
+    this.length = this.endPoint.getDistance(this.startPoint);
+};
+
 Bone.prototype.draw = function (context, selected) {
     var position1 = {x: this.startPoint.x, y: this.startPoint.y};
     var position2 = {x: this.endPoint.x, y: this.endPoint.y};
