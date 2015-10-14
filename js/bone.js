@@ -126,7 +126,7 @@ Bone.prototype.isPointConnected = function (point) {
         return this.parent;
     }
 
-    for (var i in this.children) {
+    for (var i = 0; i < this.children.length; i++) {
         if (this.children[i].containsPoint(point)) {
             return this.children[i];
         }
@@ -135,21 +135,21 @@ Bone.prototype.isPointConnected = function (point) {
 };
 
 Bone.prototype.removeChild = function (bone) {
-    for (var i in this.children) {
+    for (var i = 0; i < this.children.length; i++) {
         if (this.children[i] == bone) {
             this.children.splice(i, 1);
         }
     }
 };
 
-Bone.prototype.highlightAll = function (value) {
-    this.highlight(value);
-    for (var i in this.children) {
-        this.children[i].highlightAll(value);
+Bone.prototype.setHighlightAll = function (value) {
+    this.setHighlight(value);
+    for (var i = 0; i < this.children.length; i++) {
+        this.children[i].setHighlightAll(value);
     }
 };
 
-Bone.prototype.highlight = function (value) {
+Bone.prototype.setHighlight = function (value) {
     this.highlighted = value;
     this.startPoint.highlighted = value;
     this.endPoint.highlighted = value;

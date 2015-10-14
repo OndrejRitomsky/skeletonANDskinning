@@ -5,6 +5,13 @@ var CANVAS_STATES = {
     FORWARD_KINEMATICS: 3
 };
 
+var SELECTED_OBJECT_TYPE = {
+    NONE: 0,
+    POINT: 1,
+    BONE: 2,
+    ARRAY: 3
+};
+
 window.requestAF = window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
@@ -18,7 +25,7 @@ function Canvas(canvas, context, app) {
     this.context = context;
     this.width = 0;
     this.height = 0;
-    this.objects = [];
+    this.bones = [];
     this.state = CANVAS_STATES.IDLE;
     this.mousePos = {x: 0, y: 0};
 
@@ -39,13 +46,14 @@ function Canvas(canvas, context, app) {
     this.frame();
 
     this.selectedObject = null;
+    this.selectedObjectType = SELECTED_OBJECT_TYPE.NONE;
     this.savedPosition = null;
 }
 
 Canvas.prototype.onClick = function (ev) {
     if (ev.which == 1) {
         var point = this.getCursorPosition(ev);
-        this.leftClick(point);
+        this.leftClick(point, ev.ctrlKey);
     } else if (ev.which == 3) {
         this.cancelAll();
     }
@@ -70,8 +78,8 @@ Canvas.prototype.getCursorPosition = function (ev) {
     return {x: x, y: y};
 };
 
-Canvas.prototype.leftClick = function (point) {
-    switch (this.state){
+Canvas.prototype.leftClick = function (point, ctrlKey) {
+    switch (this.state) {
         case CANVAS_STATES.IDLE:
             this.select(point);
             break;
@@ -81,7 +89,7 @@ Canvas.prototype.leftClick = function (point) {
             break;
 
         case CANVAS_STATES.CREATING_SKELETON:
-            this.creatingSkeleton(point);
+            this.creatingSkeleton(point, ctrlKey);
             break;
 
         case CANVAS_STATES.FORWARD_KINEMATICS:
@@ -93,7 +101,7 @@ Canvas.prototype.leftClick = function (point) {
 Canvas.prototype.cancelAll = function () {
     this.resetState();
 
-    if (this.savedPosition){
+    if (this.savedPosition) {
         this.selectedObject.x = this.savedPosition.x;
         this.selectedObject.y = this.savedPosition.y;
         this.savedPosition = null;
@@ -102,17 +110,19 @@ Canvas.prototype.cancelAll = function () {
     this.app.setDescription("Use left click to select joint, which is useless");
 };
 
-Canvas.prototype.deselect = function(){
+Canvas.prototype.deselect = function () {
     if (this.selectedObject) {
-        if (this.selectedObject instanceof Bone || this.selectedObject instanceof Point ) {
+        if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE || this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
             this.selectedObject.deselect();
-        } else if (this.selectedObject instanceof Array) {
-            for (var i in this.selectedObject) {
+
+        } else if (this.selectedObjectType = SELECTED_OBJECT_TYPE.ARRAY) {
+            for (var i = 0; i < this.selectedObject.length; i++) {
                 this.selectedObject[i].deselect();
             }
         }
     }
     this.selectedObject = null;
+    this.selectedObjectType = SELECTED_OBJECT_TYPE.NONE;
 };
 
 Canvas.prototype.resetState = function () {
@@ -143,7 +153,7 @@ Canvas.prototype.clear = function (color) {
 
 Canvas.prototype.resetAll = function () {
     this.clear();
-    this.objects = [];
+    this.bones = [];
     this.resizeToWindow();
 };
 
@@ -167,17 +177,16 @@ Canvas.prototype.update = function () {
     if (this.state == CANVAS_STATES.FORWARD_KINEMATICS && this.selectedObject) {
         var bone = this.selectedObject.bone;
         var angle = bone.startPoint.radiansTo(new Point(this.mousePos.x, this.mousePos.y));
-        this.selectedObject.x = bone.startPoint.x + Math.cos(angle)*bone.length;
-        this.selectedObject.y = bone.startPoint.y + Math.sin(angle)*bone.length;
+        this.selectedObject.x = bone.startPoint.x + Math.cos(angle) * bone.length;
+        this.selectedObject.y = bone.startPoint.y + Math.sin(angle) * bone.length;
 
-        bone.highlightAll(true);
-        console.log(this.selectedObject.highlighted);
+        bone.setHighlightAll(true);
         var degInRad;
-        if(bone.parent) {
+        if (bone.parent) {
             var startPoint = bone.parent.startPoint;
             degInRad = startPoint.radiansTo(bone.startPoint) - bone.startPoint.radiansTo(this.selectedObject);
             bone.setAngle(-1 * degInRad);
-        }else{
+        } else {
             degInRad = bone.startPoint.radiansTo(this.selectedObject);
             bone.setAngle(degInRad);
         }
@@ -185,10 +194,8 @@ Canvas.prototype.update = function () {
 };
 
 Canvas.prototype.draw = function () {
-    for (var i in this.objects) {
-        if (this.objects[i].draw) {
-            this.objects[i].draw(this.context);
-        }
+    for (var i = 0; i < this.bones.length; i++) {
+        this.bones[i].draw(this.context);
     }
 
     if (this.state == CANVAS_STATES.CREATING_SKELETON && this.selectedObject) {
@@ -197,72 +204,76 @@ Canvas.prototype.draw = function () {
         this.selectedObject.draw(this.context, true);
         drawLine(this.context, position1, position2, SELECTED_COLOR, Bone.prototype.LINE_WIDTH);
         drawDiskPart(this.context, position2, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
-    }
-    if (this.state == CANVAS_STATES.CREATING_SKELETON && !this.selectedObject){
+
+    } else if (this.state == CANVAS_STATES.CREATING_SKELETON && !this.selectedObject) {
         var position = {x: this.mousePos.x, y: this.mousePos.y};
         drawDiskPart(this.context, position, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
     }
 
     if (this.state == CANVAS_STATES.FORWARD_KINEMATICS && this.selectedObject) {
-        this.selectedObject.bone.highlightAll(false);
+        this.selectedObject.bone.setHighlightAll(false);
     }
 };
 
-Canvas.prototype.creatingSkeleton = function (point) {
-    if (!this.selectedObject){
+Canvas.prototype.creatingSkeleton = function (point, ctrlKey) {
+    if (!this.selectedObject) {
         this.selectedObject = new Point(point.x, point.y);
         return;
     }
-    if (!(this.selectedObject instanceof Point)){
+    if (!(this.selectedObject instanceof Point)) {
         return;
     }
 
     var startPoint = this.selectedObject;
     var endPoint = new Point(point.x, point.y);
     var bone = new Bone(startPoint, endPoint, this.selectedObject.bone);
-    
+
     endPoint.bone = bone;
-    this.objects.push(bone);
-    this.selectedObject = endPoint;
+    this.bones.push(bone);
+    if (!ctrlKey) {
+        this.selectedObject = endPoint;
+    }
 };
 
-
-Canvas.prototype.positionCollideWithAnyPoint = function(point){
-    for (var i in this.objects){
-        if (this.objects[i] instanceof Bone){
-            var collidedObject = this.objects[i].positionCollide(point);
-            if (collidedObject){
-                return collidedObject;
-            }
+Canvas.prototype.positionCollideWithAnyPoint = function (point) {
+    for (var i = 0; i < this.bones.length; i++) {
+        var collidedPoint = this.bones[i].positionCollide(point);
+        if (collidedPoint) {
+            return collidedPoint;
         }
     }
     return null;
 };
 
-Canvas.prototype.select = function (position){
+Canvas.prototype.select = function (position) {
     var selectedPoint = this.positionCollideWithAnyPoint(position);
-    var currentlySelected = this.selectedObject;
 
     if (!selectedPoint || selectedPoint.selected) {
         return;
     }
 
+    var self = this;
+
     function defaultPointSelect(point) {
-        this.deselect();
+        self.deselect();
         point.select();
-        this.selectedObject = point;
+        self.selectedObject = point;
+        self.selectedObjectType = SELECTED_OBJECT_TYPE.POINT;
     }
 
-    if (!currentlySelected) {
-        defaultPointSelect.call(this, selectedPoint);
+    if (!this.selectedObject) {
+        defaultPointSelect(selectedPoint);
+        return;
     }
 
-    if (currentlySelected instanceof Point) {
-        var bone = currentlySelected.bone;
+    // TODO fix bug with skeleton one point being parent of two points
+    if (this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
+        var bone = this.selectedObject.bone;
         if (bone && bone.containsPoint(selectedPoint)) {
             // we selected second point of bone
             bone.select();
             this.selectedObject = bone;
+            this.selectedObjectType = SELECTED_OBJECT_TYPE.BONE;
             return;
         }
 
@@ -270,22 +281,24 @@ Canvas.prototype.select = function (position){
         if (bone && bone.containsPoint(selectedPoint)) {
             bone.select();
             this.selectedObject = bone;
+            this.selectedObjectType = SELECTED_OBJECT_TYPE.BONE;
         } else {
-            defaultPointSelect.call(this, selectedPoint);
+            defaultPointSelect(selectedPoint);
         }
 
-    } else if (currentlySelected instanceof Bone) {
-        var connectedBone = currentlySelected.isPointConnected(selectedPoint);
+    } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
+        var connectedBone = this.selectedObject.isPointConnected(selectedPoint);
         if (connectedBone) {
             connectedBone.select();
-            this.selectedObject = [currentlySelected, connectedBone];
+            this.selectedObject = [this.selectedObject, connectedBone];
+            this.selectedObjectType = SELECTED_OBJECT_TYPE.ARRAY;
         } else {
-            defaultPointSelect.call(this, selectedPoint);
+            defaultPointSelect(selectedPoint);
         }
 
-    } else if (currentlySelected instanceof Array) {
-        for (var i in currentlySelected) {
-            connectedBone = currentlySelected[i].isPointConnected(selectedPoint);
+    } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.ARRAY) {
+        for (var i = 0; i < this.selectedObject.length; i++) {
+            connectedBone = this.selectedObject[i].isPointConnected(selectedPoint);
             if (connectedBone) {
                 connectedBone.select();
                 this.selectedObject.push(connectedBone);
@@ -298,7 +311,7 @@ Canvas.prototype.select = function (position){
 Canvas.prototype.drawSkeletonButtonClick = function () {
     var selectedPoint = this.selectedObject;
     this.cancelAll();
-    if (selectedPoint instanceof Point){
+    if (selectedPoint instanceof Point) {
         this.selectedObject = selectedPoint;
     }
     this.state = CANVAS_STATES.CREATING_SKELETON;
@@ -307,7 +320,7 @@ Canvas.prototype.drawSkeletonButtonClick = function () {
 Canvas.prototype.moveButtonClick = function () {
     var selectedPoint = this.selectedObject;
     this.cancelAll();
-    if (selectedPoint instanceof Point) {
+    if (this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
         this.selectedObject = selectedPoint;
         selectedPoint.select();
         this.app.setDescription("You can move joint, choose position and left click to finish or right click to cancel command.");
@@ -353,43 +366,47 @@ Canvas.prototype.forwardKinematicsButtonClick = function () {
 
 // TODO tieto hlupe kontroly na instance tu nemusia byt, staci disablovat toto tlacitko podla selectu, napr dame classy
 // ze ake selecty podporuje
-Canvas.prototype.destroyButtonClick = function() {
+Canvas.prototype.destroyButtonClick = function () {
     if (!this.selectedObject) {
         return;
     }
 
-    if (this.selectedObject instanceof Point){
+    if (this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
         return;
     }
 
-    if (this.selectedObject instanceof Bone){
+    if (this.selectedObjectType = SELECTED_OBJECT_TYPE.BONE) {
         var parent = this.selectedObject.parent;
         var children = this.selectedObject.children;
-        if (!parent && children.length > 0){
-            for (var i in children){
+        var i;
+        if (!parent && children.length > 0) {
+            for (i = 0; i < children.length; i++) {
                 children.parent = null;
                 // TODO need to set angles, this was main parent!
             }
             this.removeBone(this.selectedObject);
         } else if (parent) {
             parent.removeChild(this.selectedObject);
-            for (var i in children) {
+            for (i = 0; i < children.length; i++) {
                 parent.children.push(children[i]);
                 children[i].startPoint = parent.endPoint;
                 // TODO need to set angles
             }
             this.removeBone(this.selectedObject);
-        } else if (!parent && children.length == 0){
+        } else if (!parent && children.length == 0) {
             this.removeBone(this.selectedObject);
         }
+    } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.ARRAY) {
+
     }
+
     this.deselect();
 };
 
-Canvas.prototype.removeBone = function (bone){
-    for (var i in this.objects){
-        if (this.objects[i] == bone){
-            this.objects.splice(i, 1);
+Canvas.prototype.removeBone = function (bone) {
+    for (var i = 0; i < this.bones.length; i++) {
+        if (this.bones[i] == bone) {
+            this.bones.splice(i, 1);
         }
     }
 };

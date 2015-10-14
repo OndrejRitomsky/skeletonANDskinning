@@ -1,8 +1,3 @@
-var APPLICATION_STATES = {
-    EDIT: 0,
-    PLAY: 1
-};
-
 /**
  * Main object in the page which handles global things, is singleton
  * @constructor
@@ -18,13 +13,8 @@ function Application() {
     this.controlPanel = $("#controlPanel");
     this.editorPanel = $("#editorPanel");
     this.description = $("#description");
-    //this.canvasPanel = $("#canvasPanel");
 
     this.canvas = this.initCanvas();
-
-    // DOM objects in application
-    // REFACTOR
-
     this.editor = null;
 }
 
