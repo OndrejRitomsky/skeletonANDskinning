@@ -25,6 +25,7 @@ function Application() {
     this.forwardKinematicsButton = $("#forwardKinematics");
     this.editor = null;
     this.canvas = this.initCanvas();
+    this.canvas.selectedObjectType = SELECTED_OBJECT_TYPE.NONE;
 }
 
 Application.prototype.enabledDisableButtons = function (selectedType) {
@@ -40,7 +41,7 @@ Application.prototype.enabledDisableButtons = function (selectedType) {
     switch (selectedType) {
         case SELECTED_OBJECT_TYPE.NONE:
             setDisabled(this.moveButton, false);
-            if (!this.canvas || this.canvas.bones.length == 0) {
+            if (this.canvas && this.canvas.bones.length == 0) {
                 setDisabled(this.drawSkeletonButton, false);
             }
             setDisabled(this.forwardKinematicsButton, false);

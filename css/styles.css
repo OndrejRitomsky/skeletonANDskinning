@@ -26,8 +26,8 @@ html {
 
 #controlPanel {
     border-bottom: 2px black solid;
+    background-color: #5588CC;
 }
-
 
 #canvasPanel {
     margin: 0px;

@@ -4,7 +4,8 @@ var CANVAS_STATES = {
     SELECTION: 3,
     FENCE_SELECTION: 4,
     MOVE: 5,
-    FORWARD_KINEMATICS: 6
+    FORWARD_KINEMATICS: 6,
+    DRAW_SKIN: 7
 };
 
 var SELECTED_OBJECT_TYPE = {
@@ -59,9 +60,8 @@ function Canvas(canvas, context, app) {
             return selectedObjectType;
         }
     });
-    this.selectedObjectType = SELECTED_OBJECT_TYPE.NONE;
-
     this.savedPosition = null;
+    this.skin = [];
 }
 
 Canvas.prototype.onClick = function (ev) {
@@ -112,6 +112,10 @@ Canvas.prototype.leftClick = function (point, ctrlKey) {
 
         case CANVAS_STATES.FORWARD_KINEMATICS:
             this.forwardKinematics(point);
+            break;
+
+        case CANVAS_STATES.DRAW_SKIN:
+            this.createSkin(point);
             break;
     }
 };
@@ -170,6 +174,7 @@ Canvas.prototype.clearCanvas = function (color) {
 
 Canvas.prototype.resetAll = function () {
     this.bones = [];
+    this.skin = [];
     this.deselect();
     this.clearCanvas();
     this.resizeToWindow();
@@ -218,6 +223,22 @@ Canvas.prototype.draw = function () {
         this.bones[i].draw(this.context);
     }
 
+    for (var i = 1; i < this.skin.length; i++){
+        var pos = this.skin[i-1];
+        var pos2 = this.skin[i];
+        var position1 = {x: pos[0], y: pos[1]};
+        var position2 = {x: pos2[0], y: pos2[1]};
+        drawLine(this.context, position1, position2, this.mousePos, DEFAULT_COLOR, 1);
+    }
+    if (this.state != CANVAS_STATES.DRAW_SKIN && this.skin.length > 2){
+        var pos = this.skin[this.skin.length-1];
+        var pos2 = this.skin[0];
+        var position1 = {x: pos[0], y: pos[1]};
+        var position2 = {x: pos2[0], y: pos2[1]};
+        drawLine(this.context, position1, position2, this.mousePos, DEFAULT_COLOR, 1);
+    }
+
+
     if (this.state == CANVAS_STATES.CREATING_SKELETON && this.selectedObject) {
         var position1 = {x: this.selectedObject.x, y: this.selectedObject.y};
 
@@ -238,6 +259,12 @@ Canvas.prototype.draw = function () {
         var height = this.mousePos.y - this.savedPosition.y;
         drawRect(this.context, this.savedPosition, width, height, FENCE_COLOR);
     }
+
+
+};
+Canvas.prototype.createSkin = function (point){
+    console.log("a");
+    this.skin.push([point.x,point.y,1]);
 };
 
 Canvas.prototype.creatingSkeleton = function (point, ctrlKey) {
@@ -357,6 +384,7 @@ Canvas.prototype.move = function (point) {
 
         this.savedPosition = null;
         this.app.setDescription("You can move joint, start by selecting one.");
+        this.selectedObjectType = SELECTED_OBJECT_TYPE.POINT;
         this.deselect();
     }
 };
@@ -462,6 +490,7 @@ Canvas.prototype.moveButtonClick = function () {
     this.cancelAll();
     if (selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
         this.selectedObject = selectedPoint;
+        this.sele
         selectedPoint.select();
         this.app.setDescription("You can move joint, choose position and left click to finish or right click to cancel command.");
     }
@@ -530,6 +559,11 @@ Canvas.prototype.forwardKinematicsButtonClick = function () {
 };
 
 
+
+Canvas.prototype.drawSkinButtonClick = function () {
+    this.cancelAll();
+    this.state = CANVAS_STATES.DRAW_SKIN;
+};
 
 
 

@@ -56,6 +56,10 @@ $(function () {
         canvas.resetAll();
     });
 
+    $("#drawSkin").click(function () {
+        canvas.drawSkinButtonClick();
+    });
+
 
     app.setDescription("Start by creating skeleton");
 

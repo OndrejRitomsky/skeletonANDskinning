@@ -3,6 +3,7 @@ function Point(x, y) {
     this.y = y || 0;
     this.bone = null;
     this.highlighted = false;
+    this.selected = false;
 }
 
 Point.prototype.RADIUS = 5;
