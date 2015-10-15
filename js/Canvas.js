@@ -1,8 +1,10 @@
 var CANVAS_STATES = {
     IDLE: 0,
     CREATING_SKELETON: 1,
-    MOVE: 2,
-    FORWARD_KINEMATICS: 3
+    SELECTION: 3,
+    FENCE_SELECTION: 4,
+    MOVE: 5,
+    FORWARD_KINEMATICS: 6
 };
 
 var SELECTED_OBJECT_TYPE = {
@@ -80,8 +82,12 @@ Canvas.prototype.getCursorPosition = function (ev) {
 
 Canvas.prototype.leftClick = function (point, ctrlKey) {
     switch (this.state) {
-        case CANVAS_STATES.IDLE:
+        case CANVAS_STATES.SELECTION:
             this.select(point);
+            break;
+
+        case CANVAS_STATES.FENCE_SELECTION:
+            this.fenceSelect(point);
             break;
 
         case CANVAS_STATES.MOVE:
@@ -99,13 +105,12 @@ Canvas.prototype.leftClick = function (point, ctrlKey) {
 };
 
 Canvas.prototype.cancelAll = function () {
-    this.resetState();
-
-    if (this.savedPosition) {
+    if (this.savedPosition && this.state == CANVAS_STATES.MOVE) {
         this.selectedObject.x = this.savedPosition.x;
         this.selectedObject.y = this.savedPosition.y;
-        this.savedPosition = null;
     }
+    this.savedPosition = null;
+    this.resetState();
     this.deselect();
     this.app.setDescription("Use left click to select joint, which is useless");
 };
@@ -146,19 +151,19 @@ Canvas.prototype.resizeToWindow = function () {
     this.resize(width, height);
 };
 
-Canvas.prototype.clear = function (color) {
+Canvas.prototype.clearCanvas = function (color) {
     this.context.fillStyle = color || BACKGROUND_COLOR;
     this.context.fillRect(0, 0, this.width, this.height);
 };
 
 Canvas.prototype.resetAll = function () {
-    this.clear();
+    this.clearCanvas();
     this.bones = [];
     this.resizeToWindow();
 };
 
 Canvas.prototype.frame = function () {
-    this.clear();
+    this.clearCanvas();
     this.update();
     this.draw();
 
@@ -200,18 +205,27 @@ Canvas.prototype.draw = function () {
 
     if (this.state == CANVAS_STATES.CREATING_SKELETON && this.selectedObject) {
         var position1 = {x: this.selectedObject.x, y: this.selectedObject.y};
-        var position2 = {x: this.mousePos.x, y: this.mousePos.y};
-        this.selectedObject.draw(this.context, true);
-        drawLine(this.context, position1, position2, SELECTED_COLOR, Bone.prototype.LINE_WIDTH);
-        drawDiskPart(this.context, position2, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
+
+        drawDiskPart(this.context, position1, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
+        drawLine(this.context, position1, this.mousePos, SELECTED_COLOR, Bone.prototype.LINE_WIDTH);
+        drawDiskPart(this.context, this.mousePos, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
 
     } else if (this.state == CANVAS_STATES.CREATING_SKELETON && !this.selectedObject) {
-        var position = {x: this.mousePos.x, y: this.mousePos.y};
-        drawDiskPart(this.context, position, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
+        drawDiskPart(this.context, this.mousePos, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
     }
 
     if (this.state == CANVAS_STATES.FORWARD_KINEMATICS && this.selectedObject) {
         this.selectedObject.bone.setHighlightAll(false);
+    }
+
+    if (this.state == CANVAS_STATES.FORWARD_KINEMATICS && this.selectedObject) {
+        this.selectedObject.bone.setHighlightAll(false);
+    }
+
+    if (this.state == CANVAS_STATES.FENCE_SELECTION && this.savedPosition) {
+        var width = this.mousePos.x - this.savedPosition.x;
+        var height = this.mousePos.y - this.savedPosition.y;
+        drawRect(this.context, this.savedPosition, width, height, FENCE_COLOR);
     }
 };
 
@@ -308,25 +322,6 @@ Canvas.prototype.select = function (position) {
     }
 };
 
-Canvas.prototype.drawSkeletonButtonClick = function () {
-    var selectedPoint = this.selectedObject;
-    this.cancelAll();
-    if (selectedPoint instanceof Point) {
-        this.selectedObject = selectedPoint;
-    }
-    this.state = CANVAS_STATES.CREATING_SKELETON;
-};
-
-Canvas.prototype.moveButtonClick = function () {
-    var selectedPoint = this.selectedObject;
-    this.cancelAll();
-    if (this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
-        this.selectedObject = selectedPoint;
-        selectedPoint.select();
-        this.app.setDescription("You can move joint, choose position and left click to finish or right click to cancel command.");
-    }
-    this.state = CANVAS_STATES.MOVE;
-};
 
 Canvas.prototype.move = function (point) {
     if (!this.selectedObject) {
@@ -371,9 +366,73 @@ Canvas.prototype.forwardKinematics = function (point) {
     }
 };
 
-Canvas.prototype.forwardKinematicsButtonClick = function () {
+Canvas.prototype.removeBone = function (bone) {
+    for (var i = 0; i < this.bones.length; i++) {
+        if (this.bones[i] == bone) {
+            this.bones.splice(i, 1);
+        }
+    }
+};
+
+Canvas.prototype.fenceSelect = function (point) {
+    if (!this.savedPosition) {
+        this.deselect();
+        this.savedPosition = point;
+    } else {
+        var selectedBones = [];
+        for (var i = 0; i < this.bones.length; i++){
+            if (this.bones[i].isInRectangle(this.savedPosition, point)){
+                selectedBones.push(this.bones[i]);
+                this.bones[i].select();
+            }
+        }
+
+        if (selectedBones.length == 1){
+            this.selectedObjectType = SELECTED_OBJECT_TYPE.BONE;
+            this.selectedObject = selectedBones[0];
+        }
+
+        if (selectedBones.length > 1){
+            this.selectedObjectType = SELECTED_OBJECT_TYPE.ARRAY;
+            this.selectedObject = selectedBones;
+        }
+
+        this.savedPosition = null;
+    }
+};
+
+// --------------------------- BUTTON CLICKS ------------------------------
+
+Canvas.prototype.selectionButtonClick = function () {
+    if (this.state != CANVAS_STATES.FENCE_SELECTION) {
+        this.cancelAll();
+    }
+    this.state = CANVAS_STATES.SELECTION;
+};
+
+Canvas.prototype.fenceSelectionButtonClick = function () {
     this.cancelAll();
-    this.state = CANVAS_STATES.FORWARD_KINEMATICS;
+    this.state = CANVAS_STATES.FENCE_SELECTION;
+};
+
+Canvas.prototype.drawSkeletonButtonClick = function () {
+    var selectedPoint = this.selectedObject;
+    this.cancelAll();
+    if (selectedPoint instanceof Point) {
+        this.selectedObject = selectedPoint;
+    }
+    this.state = CANVAS_STATES.CREATING_SKELETON;
+};
+
+Canvas.prototype.moveButtonClick = function () {
+    var selectedPoint = this.selectedObject;
+    this.cancelAll();
+    if (this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
+        this.selectedObject = selectedPoint;
+        selectedPoint.select();
+        this.app.setDescription("You can move joint, choose position and left click to finish or right click to cancel command.");
+    }
+    this.state = CANVAS_STATES.MOVE;
 };
 
 // TODO tieto hlupe kontroly na instance tu nemusia byt, staci disablovat toto tlacitko podla selectu, napr dame classy
@@ -393,7 +452,6 @@ Canvas.prototype.destroyButtonClick = function () {
         var children = bone.children;
         var i;
         if (!parent && children.length > 0) {
-            console.log("a");
             for (i = 0; i < children.length; i++) {
                 children[i].parent = null;
                 children[i].recalculateAngle();
@@ -409,10 +467,8 @@ Canvas.prototype.destroyButtonClick = function () {
                 children[i].recalculateAngle();  //  A   C    D
             }
             self.removeBone(bone);
-            console.log(self.bones);
 
         } else if (!parent && children.length == 0) {
-            console.log("c");
             self.removeBone(bone);
         }
     }
@@ -429,10 +485,15 @@ Canvas.prototype.destroyButtonClick = function () {
     this.deselect();
 };
 
-Canvas.prototype.removeBone = function (bone) {
-    for (var i = 0; i < this.bones.length; i++) {
-        if (this.bones[i] == bone) {
-            this.bones.splice(i, 1);
-        }
-    }
+Canvas.prototype.forwardKinematicsButtonClick = function () {
+    this.cancelAll();
+    this.state = CANVAS_STATES.FORWARD_KINEMATICS;
 };
+
+
+
+
+
+
+
+

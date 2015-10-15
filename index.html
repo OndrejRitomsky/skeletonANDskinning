@@ -9,13 +9,19 @@
 <div id="container">
     <div id="controlPanel">
         <div id="controls">
-            <input type="button" value="showEditorTest" id="open">
-            <input type="button" value="closeEditorTest" id="close">
-            <input type="button" value="drawSkeleton" id="drawSkeleton">
-            <input type="button" value="move" id="move">
-            <input type="button" value="join todo" id="join">
-            <input type="button" value="remove bones" id="destroy">
-            <input type="button" value="Forward Kinematics" id="forwardKinematics">
+            <?-- <input type="button" value="showEditorTest" id="open"-->
+            <?-- <input type="button" value="closeEditorTest" id="close"-->
+            <input type="button" class="menuButton active" value="clear" id="clear">
+            <span class="separator"></span>
+            <input type="button" class="menuButton" value="selection" id="select">
+            <input type="button" class="menuButton" value="fence selection" id="fenceSelect">
+            <span class="separator"></span>
+            <input type="button" class="menuButton" value="drawSkeleton" id="drawSkeleton">
+            <input type="button" class="menuButton" value="move" id="move">
+            <input type="button" class="menuButton" value="remove bones" id="destroy">
+            <span class="separator"></span>
+
+            <input type="button" class="menuButton" value="Forward Kinematics" id="forwardKinematics">
         </div>
 
         <div id="description">

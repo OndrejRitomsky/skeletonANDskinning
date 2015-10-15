@@ -12,7 +12,7 @@ $(function () {
         , false);
 
     // tmp
-    $("#open").on("click", function () {
+    /*$("#open").on("click", function () {
         var html = "<div id='editor' style='display: none'><h4>editor</h4><br><input type='text' value='placeholder'><br><input type='text' value='placeholder'><br>" +
             "<input type='text' value='placeholder'><br><input type='text' value='placeholder'><br></div>";
 
@@ -21,7 +21,7 @@ $(function () {
 
     $("#close").click(function () {
         app.closeEditor();
-    });
+    });*/
 
 
     // create resources for strings!!
@@ -44,6 +44,15 @@ $(function () {
     $("#destroy").click(function () {
         canvas.destroyButtonClick();
     });
+
+    $("#select").click(function () {
+        canvas.selectionButtonClick();
+    });
+
+    $("#fenceSelect").click(function () {
+        canvas.fenceSelectionButtonClick();
+    });
+
 
 
 
