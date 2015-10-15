@@ -141,19 +141,6 @@ Bone.prototype.isPointConnected = function (point) {
     return false;
 };
 
-Bone.prototype.isBoneConnected = function (bone) {
-    if (this.parent && this.parent == bone) {
-        return true;
-    }
-
-    for (var i = 0; i < this.children.length; i++) {
-        if (this.children[i] == bone) {
-            return true;
-        }
-    }
-    return false;
-};
-
 Bone.prototype.removeChild = function (bone) {
     for (var i = 0; i < this.children.length; i++) {
         if (this.children[i] == bone) {
@@ -179,6 +166,6 @@ Bone.prototype.isInRectangle = function(pos1, pos2){
     function pointIsInRectangle(point, pos1, pos2) {
         return point.x < pos2.x && point.x > pos1.x && point.y < pos2.y && point.y > pos1.y;
     }
-    console.log(pointIsInRectangle(this.startPoint, pos1, pos2), pointIsInRectangle(this.endPoint, pos1, pos2));
+
     return pointIsInRectangle(this.startPoint, pos1, pos2) && pointIsInRectangle(this.endPoint, pos1, pos2);
 };

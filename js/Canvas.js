@@ -311,12 +311,12 @@ Canvas.prototype.select = function (position) {
         }
 
     } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.ARRAY) {
-        for (var i = 0; i < this.selectedObject.length; i++) {
+        var length = this.selectedObject.length;
+        for (var i = 0; i < length; i++) {
             connectedBone = this.selectedObject[i].isPointConnected(selectedPoint);
             if (connectedBone) {
                 connectedBone.select();
                 this.selectedObject.push(connectedBone);
-                return;
             }
         }
     }
