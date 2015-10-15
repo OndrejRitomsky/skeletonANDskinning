@@ -2,7 +2,6 @@
 $(function () {
 
     var app = new Application();
-
     var canvas = app.canvas;
 
     window.addEventListener("resize",
@@ -53,9 +52,11 @@ $(function () {
         canvas.fenceSelectionButtonClick();
     });
 
+    $("#clear").click(function () {
+        canvas.resetAll();
+    });
 
 
-
-    app.setDescription("Use left click to select joint, which is useless");
+    app.setDescription("Start by creating skeleton");
 
 });

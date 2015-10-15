@@ -10,13 +10,58 @@ function Application() {
 
     Application.instance = this;
 
+
     this.controlPanel = $("#controlPanel");
     this.editorPanel = $("#editorPanel");
     this.description = $("#description");
 
-    this.canvas = this.initCanvas();
+    // try to create nice config for these and selecttype -> disabled enabled
+    //this.clearButton = $("#select");
+    //
+    //this.fenceSelectButton = $("#fenceSelect");
+    this.drawSkeletonButton = $("#drawSkeleton");
+    this.moveButton = $("#move");
+    this.destroyButton = $("#destroy");
+    this.forwardKinematicsButton = $("#forwardKinematics");
     this.editor = null;
+    this.canvas = this.initCanvas();
 }
+
+Application.prototype.enabledDisableButtons = function (selectedType) {
+    function setDisabled(selector, value) {
+        selector.prop("disabled", value);
+    }
+
+    setDisabled(this.drawSkeletonButton, true);
+    setDisabled(this.moveButton, true);
+    setDisabled(this.destroyButton, true);
+    setDisabled(this.forwardKinematicsButton, true);
+
+    switch (selectedType) {
+        case SELECTED_OBJECT_TYPE.NONE:
+            setDisabled(this.moveButton, false);
+            if (!this.canvas || this.canvas.bones.length == 0) {
+                setDisabled(this.drawSkeletonButton, false);
+            }
+            setDisabled(this.forwardKinematicsButton, false);
+            break;
+
+        case SELECTED_OBJECT_TYPE.POINT:
+            setDisabled(this.moveButton, false);
+            setDisabled(this.drawSkeletonButton, false);
+            break;
+
+        case SELECTED_OBJECT_TYPE.BONE:
+            setDisabled(this.destroyButton, false);
+            setDisabled(this.forwardKinematicsButton, false);
+            break;
+
+        case SELECTED_OBJECT_TYPE.ARRAY:
+            setDisabled(this.destroyButton, false);
+            break;
+
+    }
+};
 
 Application.prototype.setDescription = function (text) {
     this.description.html(text);
