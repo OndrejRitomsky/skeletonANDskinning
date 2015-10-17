@@ -547,17 +547,23 @@ Canvas.prototype.destroyButtonClick = function () {
         if (!parent && children.length > 0) {
             for (i = 0; i < children.length; i++) {
                 children[i].parent = null;
-                children[i].recalculateAngle();
+                children[i].recalculateAngle(children[i].endPoint);
             }
             self.removeBone(bone);
 
         } else if (parent) {
             parent.removeChild(bone);
+            parent.endPoint = bone.endPoint;
+            parent.recalculateLength();
+            parent.recalculateAngle(parent.endPoint);
             for (i = 0; i < children.length; i++) {
                 parent.children.push(children[i]);
                 children[i].parent = parent;
                 children[i].startPoint = parent.getEndPoint();
-                children[i].recalculateAngle();  //  A   C    D
+                children[i].recalculateAngle(children[i].endPoint);  //  A   C    D
+                for(var j = 0; j < children[i].children.length; j++){
+                    children[i].children[j].recalculateAngle(children[i].children[j].endPoint);
+                }
             }
             self.removeBone(bone);
 
