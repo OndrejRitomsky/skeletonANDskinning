@@ -18,7 +18,7 @@ function Bone(startPoint, endPoint, parent) {
     if (!this.parent) {
         this.angle = startPoint.radiansTo(endPoint);
     } else {
-        this.angle = (-1) * (this.parent.startPoint.radiansTo(startPoint) - startPoint.radiansTo(endPoint));
+        this.angle = startPoint.radians2To(this.parent.startPoint, endPoint);
         parent.addChild(this);
     }
 
@@ -27,7 +27,6 @@ function Bone(startPoint, endPoint, parent) {
 }
 
 Bone.prototype.LINE_WIDTH = 3;
-
 
 /**
  * Add child to parent bone. *
@@ -45,12 +44,12 @@ Bone.prototype.addChild = function (child) {
 };
 
 /**
- * Calculate end point coordinates of bone.
+ * Calculate and set end point coordinates of bone.
  *
  * @this {Bone}
- * @returns {Point} End point coordinates of bone.
+ * @returns {Point} End point of bone.
  */
-Bone.prototype.getEndPoint = function () {
+Bone.prototype.recalculateEndPoint = function () {
     var angle = this.angle;
     var currentBone = this.parent;
     while (currentBone instanceof Bone) {
@@ -58,54 +57,92 @@ Bone.prototype.getEndPoint = function () {
         currentBone = currentBone.parent;
     }
 
-    this.endPoint.x = this.startPoint.x + Math.cos(angle) * this.length;
-    this.endPoint.y = this.startPoint.y + Math.sin(angle) * this.length;
-    return this.endPoint;
-};
-
-Bone.prototype.setStartPoint = function (point) {
-    this.startPoint = point;
-    if (this.children.length < 1) {
-        this.getEndPoint();
-    }
-    for (var i = 0; i < this.children.length; i++) {
-        this.children[i].setStartPoint(this.getEndPoint());
+    if(this.children[0]) {
+        for(var i = 0; i < this.children.length; i++){
+            this.children[i].startPoint.x = this.startPoint.x + Math.cos(angle) * this.length;
+            this.children[i].startPoint.y = this.startPoint.y + Math.sin(angle) * this.length;
+        }
+        return this.children[0].startPoint;
+    } else {
+        this.endPoint.x = this.startPoint.x + Math.cos(angle) * this.length;
+        this.endPoint.y = this.startPoint.y + Math.sin(angle) * this.length;
+        return this.endPoint;
     }
 };
 
 /**
+ * Return end point of bone.
+ *
+ * @this{Bone}
+ * @returns {Point} End point of bone.
+ */
+Bone.prototype.getEndPoint = function () {
+    if(!this.children[0]){
+        return this.endPoint;
+    }else {
+        return this.children[0].startPoint;
+    }
+};
+
+/**
+ * Set coordinates of start point to coordinates of point.
+ *
+ * @param {Point} point Point with new coordinates.
+ */
+Bone.prototype.setStartPoint = function (point){
+    this.startPoint.x = point.x;
+    this.startPoint.y = point.y;
+};
+
+/**
+ * Set start point of bone and calculate start point of all its children.
+ *
+ * @this{Bone}
+ * @param {Point} point New start point of bone.
+ */
+Bone.prototype.recalculateStartPoint = function (point) {
+    this.setStartPoint(point);
+    if (this.children.length < 1) {
+        this.recalculateEndPoint();
+    }
+    for (var i = 0; i < this.children.length; i++) {
+        this.children[i].recalculateStartPoint(this.recalculateEndPoint());
+    }
+};
+
+/**
+ * Forward kinematics function which set angle of selected bone and then translate all its children.
  *
  * @this {Bone}
- * @param angle The angle that will be setted.
+ * @param {number} angle The angle in radians that will be setted.
  */
 Bone.prototype.setAngle = function (angle) {
     this.angle = angle;
     for (var i = 0; i < this.children.length; i++) {
-        this.children[i].setStartPoint(this.getEndPoint());
+        this.children[i].recalculateStartPoint(this.recalculateEndPoint());
     }
 };
 
-Bone.prototype.recalculateAngle = function () {
-    this.recalculateLength();
+Bone.prototype.recalculateAngle = function (endPoint) {
     if (!this.parent) {
-        this.angle = this.startPoint.radiansTo(this.endPoint);
+        this.angle = this.startPoint.radiansTo(endPoint);
     } else {
-        this.angle = (-1) * (this.parent.startPoint.radiansTo(this.parent.endPoint) - this.startPoint.radiansTo(this.endPoint));
+        this.angle = this.startPoint.radians2To(this.parent.startPoint, endPoint);
     }
 };
 
 Bone.prototype.recalculateLength = function () {
-    this.length = this.endPoint.getDistance(this.startPoint);
+    this.length = this.getEndPoint().getDistance(this.startPoint);
 };
 
 Bone.prototype.draw = function (context, selected) {
     var position1 = {x: this.startPoint.x, y: this.startPoint.y};
-    var position2 = {x: this.endPoint.x, y: this.endPoint.y};
+    var position2 = {x: this.getEndPoint().x, y: this.getEndPoint().y};
     var color = selected || this.selected ? SELECTED_COLOR : DEFAULT_COLOR;
     color = this.highlighted ? HIGHLIGHT_COLOR : color;
     drawLine(context, position1, position2, color, this.LINE_WIDTH);
     this.startPoint.draw(context, selected);
-    this.endPoint.draw(context, selected);
+    this.getEndPoint().draw(context, selected);
 };
 
 Bone.prototype.positionCollide = function (position) {

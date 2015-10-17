@@ -29,6 +29,7 @@ function Canvas(canvas, context, app) {
     this.width = 0;
     this.height = 0;
     this.bones = [];
+    this.cachedJoint = [];
     this.state = CANVAS_STATES.IDLE;
     this.mousePos = {x: 0, y: 0};
 
@@ -200,7 +201,7 @@ Canvas.prototype.update = function () {
 
     if (this.state == CANVAS_STATES.FORWARD_KINEMATICS && this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
         var bone = this.selectedObject;
-        var endPoint = this.selectedObject.endPoint;
+        var endPoint = this.selectedObject.getEndPoint();
         var angle = bone.startPoint.radiansTo(new Point(this.mousePos.x, this.mousePos.y));
         endPoint.x = bone.startPoint.x + Math.cos(angle) * bone.length;
         endPoint.y = bone.startPoint.y + Math.sin(angle) * bone.length;
@@ -208,9 +209,8 @@ Canvas.prototype.update = function () {
         bone.setHighlightAll(true);
         var degInRad;
         if (bone.parent) {
-            var startPoint = bone.parent.startPoint;
-            degInRad = startPoint.radiansTo(bone.startPoint) - bone.startPoint.radiansTo(endPoint);
-            bone.setAngle(-1 * degInRad);
+            degInRad = bone.startPoint.radians2To(bone.parent.startPoint, endPoint);
+            bone.setAngle(degInRad);
         } else {
             degInRad = bone.startPoint.radiansTo(endPoint);
             bone.setAngle(degInRad);
@@ -372,14 +372,33 @@ Canvas.prototype.move = function (point) {
     if (this.selectedObject) {
         var bone = this.selectedObject.bone;
 
-        // TODO fix with endpoint correction
-        if (bone.parent){
-            bone.parent.recalculateAngle();
-        }
-        bone.recalculateAngle();
-
-        for (var i = 0; i < bone.children; i++){
-            bone.children[i].recalculateAngle();
+        if(bone) {
+            if (!bone.children[0]) {
+                bone.length = this.selectedObject.getDistance(bone.startPoint);
+                bone.recalculateAngle(this.selectedObject);
+            } else {
+                bone.length = this.selectedObject.getDistance(bone.startPoint);
+                bone.recalculateAngle(this.selectedObject);
+                for (var i = 0; i < bone.children.length; i++) {
+                    bone.children[i].setStartPoint(this.selectedObject);
+                    bone.children[i].recalculateLength();
+                    bone.children[i].recalculateAngle(bone.children[i].endPoint);
+                    for (var j = 0; j < bone.children[i].children.length; j++) {
+                        bone.children[i].children[j].recalculateAngle(bone.children[i].children[j].endPoint);
+                    }
+                }
+            }
+        } else {
+            var iter = 0;
+            while(this.bones[iter].startPoint === this.selectedObject){
+                this.bones[iter].setStartPoint(this.selectedObject);
+                this.bones[iter].recalculateLength();
+                this.bones[iter].recalculateAngle(this.bones[iter].endPoint);
+                for (var j = 0; j < this.bones[iter].children.length; j++) {
+                    this.bones[iter].children[j].recalculateAngle(this.bones[iter].children[j].endPoint);
+                }
+                iter++;
+            }
         }
 
         this.savedPosition = null;
@@ -490,7 +509,6 @@ Canvas.prototype.moveButtonClick = function () {
     this.cancelAll();
     if (selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
         this.selectedObject = selectedPoint;
-        this.sele
         selectedPoint.select();
         this.app.setDescription("You can move joint, choose position and left click to finish or right click to cancel command.");
     }
@@ -525,7 +543,7 @@ Canvas.prototype.destroyButtonClick = function () {
             for (i = 0; i < children.length; i++) {
                 parent.children.push(children[i]);
                 children[i].parent = parent;
-                children[i].startPoint = parent.endPoint;
+                children[i].startPoint = parent.getEndPoint();
                 children[i].recalculateAngle();  //  A   C    D
             }
             self.removeBone(bone);
