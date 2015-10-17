@@ -22,26 +22,40 @@ $(function () {
         app.closeEditor();
     });*/
 
+    $("body").on("keypress", function(e){
+        switch(e.key){
+            case "s":
+                canvas.selectionButtonClick();
+                break;
 
-    // create resources for strings!!
-    $("#drawSkeleton").click(function () {
-        canvas.drawSkeletonButtonClick();
-        app.setDescription("You can draw skeleton with left click.");
-    });
+            case "f":
+                canvas.fenceSelectionButtonClick();
+                break;
 
-    // treba tu call, asi ne
-    $("#move").click(function () {
-        canvas.moveButtonClick();
-        app.setDescription("You can move joint, start by selecting one.");
-    });
+            case "e":
+                canvas.drawSkeletonButtonClick();
+                break;
 
-    $("#forwardKinematics").click(function () {
-        canvas.forwardKinematicsButtonClick();
-        app.setDescription("Forward blabla");
-    });
+            case "i":
+                canvas.drawSkinButtonClick();
+                break;
 
-    $("#destroy").click(function () {
-        canvas.destroyButtonClick();
+            case "m":
+                canvas.moveButtonClick();
+                break;
+
+            case "r":
+                canvas.destroyButtonClick();
+                break;
+
+            case "k":
+                canvas.forwardKinematicsButtonClick();
+                break;
+        }
+    } );
+
+    $("#clear").click(function () {
+        canvas.resetAll();
     });
 
     $("#select").click(function () {
@@ -52,14 +66,29 @@ $(function () {
         canvas.fenceSelectionButtonClick();
     });
 
-    $("#clear").click(function () {
-        canvas.resetAll();
+    $("#drawSkeleton").click(function () {
+        canvas.drawSkeletonButtonClick();
+        app.setDescription("You can draw skeleton with left click.");
     });
 
     $("#drawSkin").click(function () {
         canvas.drawSkinButtonClick();
     });
 
+    // treba tu call, asi ne
+    $("#move").click(function () {
+        canvas.moveButtonClick();
+        app.setDescription("You can move joint, start by selecting one.");
+    });
+
+    $("#destroy").click(function () {
+        canvas.destroyButtonClick();
+    });
+
+    $("#forwardKinematics").click(function () {
+        canvas.forwardKinematicsButtonClick();
+        app.setDescription("Forward blabla");
+    });
 
     app.setDescription("Start by creating skeleton");
 
