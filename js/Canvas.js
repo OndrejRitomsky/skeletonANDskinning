@@ -29,7 +29,6 @@ function Canvas(canvas, context, app) {
     this.width = 0;
     this.height = 0;
     this.bones = [];
-    this.cachedJoint = [];
     this.state = CANVAS_STATES.IDLE;
     this.mousePos = {x: 0, y: 0};
 
@@ -39,6 +38,7 @@ function Canvas(canvas, context, app) {
     });
 
     this.canvas.addEventListener("mouseup", function (ev) {
+        console.log("click");
         self.onClick(ev);
     });
 
@@ -63,6 +63,7 @@ function Canvas(canvas, context, app) {
     });
     this.savedPosition = null;
     this.skin = [];
+    this.app.setDescription(Resources.default);
 }
 
 Canvas.prototype.onClick = function (ev) {
@@ -129,7 +130,7 @@ Canvas.prototype.cancelAll = function () {
     this.savedPosition = null;
     this.resetState();
     this.deselect();
-    this.app.setDescription("Use left click to select joint, which is useless");
+    this.app.setDescription(Resources.default);
 };
 
 Canvas.prototype.deselect = function () {
@@ -137,7 +138,7 @@ Canvas.prototype.deselect = function () {
         if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE || this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
             this.selectedObject.deselect();
 
-        } else if (this.selectedObjectType = SELECTED_OBJECT_TYPE.ARRAY) {
+        } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.ARRAY) {
             for (var i = 0; i < this.selectedObject.length; i++) {
                 this.selectedObject[i].deselect();
             }
@@ -179,7 +180,6 @@ Canvas.prototype.resetAll = function () {
     this.deselect();
     this.clearCanvas();
     this.resizeToWindow();
-    this.app.setDescription("Start by creating skeleton");
 };
 
 Canvas.prototype.frame = function () {
@@ -223,25 +223,24 @@ Canvas.prototype.draw = function () {
         this.bones[i].draw(this.context);
     }
 
-    for (var i = 1; i < this.skin.length; i++){
-        var pos = this.skin[i-1];
+    for (var i = 1; i < this.skin.length; i++) {
+        var pos = this.skin[i - 1];
         var pos2 = this.skin[i];
         var position1 = {x: pos[0], y: pos[1]};
         var position2 = {x: pos2[0], y: pos2[1]};
-        drawLine(this.context, position1, position2, this.mousePos, DEFAULT_COLOR, 1);
+        var w = 1;
+        drawLine(this.context, position1, position2, DEFAULT_COLOR, 1);
     }
-    if (this.state != CANVAS_STATES.DRAW_SKIN && this.skin.length > 2){
-        var pos = this.skin[this.skin.length-1];
+    if (this.state != CANVAS_STATES.DRAW_SKIN && this.skin.length > 2) {
+        var pos = this.skin[this.skin.length - 1];
         var pos2 = this.skin[0];
         var position1 = {x: pos[0], y: pos[1]};
         var position2 = {x: pos2[0], y: pos2[1]};
-        drawLine(this.context, position1, position2, this.mousePos, DEFAULT_COLOR, 1);
+        drawLine(this.context, position1, position2, DEFAULT_COLOR, 1);
     }
-
 
     if (this.state == CANVAS_STATES.CREATING_SKELETON && this.selectedObject) {
         var position1 = {x: this.selectedObject.x, y: this.selectedObject.y};
-
         drawDiskPart(this.context, position1, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
         drawLine(this.context, position1, this.mousePos, SELECTED_COLOR, Bone.prototype.LINE_WIDTH);
         drawDiskPart(this.context, this.mousePos, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
@@ -259,18 +258,18 @@ Canvas.prototype.draw = function () {
         var height = this.mousePos.y - this.savedPosition.y;
         drawRect(this.context, this.savedPosition, width, height, FENCE_COLOR);
     }
-
-
 };
+
 Canvas.prototype.createSkin = function (point){
-    console.log("a");
     this.skin.push([point.x,point.y,1]);
+    this.app.setDescription(Resources.drawSkinButton.createSkin);
 };
 
 Canvas.prototype.creatingSkeleton = function (point, ctrlKey) {
     if (!this.selectedObject) {
         this.selectedObject = new Point(point.x, point.y);
         this.selectedObjectType = SELECTED_OBJECT_TYPE.POINT;
+        this.app.setDescription(Resources.drawSkeletonButton.createBone);
         return;
     }
 
@@ -301,6 +300,7 @@ Canvas.prototype.select = function (position) {
     if (!selectedPoint || selectedPoint.selected) {
         return;
     }
+    this.app.setDescription(Resources.selectButton.selectNext);
 
     var self = this;
 
@@ -364,7 +364,7 @@ Canvas.prototype.move = function (point) {
         this.select(point);
         if (this.selectedObject) {
             this.savedPosition = {x: this.selectedObject.x, y: this.selectedObject.y};
-            this.app.setDescription("You can move joint, choose position and left click to finish or right click to cancel command.");
+            this.app.setDescription(Resources.moveButton.move);
         }
         return;
     }
@@ -402,7 +402,6 @@ Canvas.prototype.move = function (point) {
         }
 
         this.savedPosition = null;
-        this.app.setDescription("You can move joint, start by selecting one.");
         this.selectedObjectType = SELECTED_OBJECT_TYPE.POINT;
         this.deselect();
     }
@@ -411,8 +410,10 @@ Canvas.prototype.move = function (point) {
 Canvas.prototype.forwardKinematics = function (point) {
     if (!this.selectedObject || this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
         this.select(point);
-        if (this.selectedObject) {
-            this.app.setDescription("Choose new position.");
+        if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
+            this.app.setDescription(Resources.forwardKinematicsButton.forward);
+        } else {
+            this.app.setDescription(Resources.forwardKinematicsButton.pickBone);
         }
         return;
     }
@@ -486,19 +487,28 @@ Canvas.prototype.selectionButtonClick = function () {
     if (this.state != CANVAS_STATES.FENCE_SELECTION) {
         this.cancelAll();
     }
+    this.app.setDescription(Resources.selectButton.select);
+    if (this.selectedObject){
+        this.app.setDescription(Resources.selectButton.selectNext);
+    }
+
     this.state = CANVAS_STATES.SELECTION;
 };
 
 Canvas.prototype.fenceSelectionButtonClick = function () {
     this.cancelAll();
     this.state = CANVAS_STATES.FENCE_SELECTION;
+    this.app.setDescription(Resources.fenceSelectButton.select);
 };
 
 Canvas.prototype.drawSkeletonButtonClick = function () {
+
     var selectedObject = this.selectedObject;
     this.cancelAll();
+    this.app.setDescription(Resources.drawSkeletonButton.pickPosition);
     if (selectedObject) {
         this.selectedObject = selectedObject;
+        this.app.setDescription(Resources.drawSkeletonButton.createBone);
     }
     this.state = CANVAS_STATES.CREATING_SKELETON;
 };
@@ -507,7 +517,9 @@ Canvas.prototype.moveButtonClick = function () {
     var selectedPoint = this.selectedObject;
     var selectedObjectType = this.selectedObjectType;
     this.cancelAll();
+    this.app.setDescription(Resources.moveButton.pickPosition);
     if (selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
+        this.app.setDescription(Resources.moveButton.move);
         this.selectedObject = selectedPoint;
         selectedPoint.select();
         this.app.setDescription("You can move joint, choose position and left click to finish or right click to cancel command.");
@@ -518,6 +530,7 @@ Canvas.prototype.moveButtonClick = function () {
 // TODO tieto hlupe kontroly na instance tu nemusia byt, staci disablovat toto tlacitko podla selectu, napr dame classy
 // ze ake selecty podporuje
 Canvas.prototype.destroyButtonClick = function () {
+    console.log("?");
     if (!this.selectedObject) {
         return;
     }
@@ -552,11 +565,13 @@ Canvas.prototype.destroyButtonClick = function () {
             self.removeBone(bone);
         }
     }
-
+    console.log("a");
     if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
         removeBone(this.selectedObject);
+        console.log("b");
 
     } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.ARRAY) {
+        console.log("c");
         for (var i = 0; i < this.selectedObject.length; i++){
             removeBone(this.selectedObject[i]);
         }
@@ -569,7 +584,9 @@ Canvas.prototype.forwardKinematicsButtonClick = function () {
     var selectedObject = this.selectedObject;
     var selectedObjectType = this.selectedObjectType;
     this.cancelAll();
+    this.app.setDescription(Resources.forwardKinematicsButton.pickBone);
     if (selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
+        this.app.setDescription(Resources.forwardKinematicsButton.forward);
         this.selectedObject = selectedObject;
         this.selectedObjectType = selectedObjectType;
     }
@@ -577,10 +594,10 @@ Canvas.prototype.forwardKinematicsButtonClick = function () {
 };
 
 
-
 Canvas.prototype.drawSkinButtonClick = function () {
     this.cancelAll();
     this.state = CANVAS_STATES.DRAW_SKIN;
+    this.app.setDescription(Resources.drawSkinButton.pickPosition);
 };
 
 

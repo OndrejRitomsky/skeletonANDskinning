@@ -22,6 +22,7 @@ function drawDiskPart(context, position, radius, fillColor, fromDegree, toDegree
 }
 
 function drawRect(context, position, width, height, fillColor) {
+    context.beginPath();
     context.fillStyle = fillColor;
     context.fillRect(position.x, position.y, width, height);
 }

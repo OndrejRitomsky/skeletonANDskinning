@@ -19,7 +19,7 @@ function Bone(startPoint, endPoint, parent) {
         this.angle = startPoint.radiansTo(endPoint);
     } else {
         this.angle = startPoint.radians2To(this.parent.startPoint, endPoint);
-        parent.addChild(this);
+        parent.children.push(this);
     }
 
     this.selected = false;
@@ -27,21 +27,6 @@ function Bone(startPoint, endPoint, parent) {
 }
 
 Bone.prototype.LINE_WIDTH = 3;
-
-/**
- * Add child to parent bone. *
- * @this {Bone}
- * @param {Bone} child The child that will be added.
- * @returns {boolean} True if child was added successfully.
- */
-Bone.prototype.addChild = function (child) {
-    if (child instanceof Bone) {
-        this.children.push(child);
-        return true;
-    } else {
-        return false;
-    }
-};
 
 /**
  * Calculate and set end point coordinates of bone.
