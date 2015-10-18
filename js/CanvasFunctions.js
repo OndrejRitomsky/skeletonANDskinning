@@ -26,58 +26,43 @@ function drawRect(context, position, width, height, fillColor) {
     context.fillStyle = fillColor;
     context.fillRect(position.x, position.y, width, height);
 }
-// ------------------------------ OTHERS  ------------------------------
-/**
- * checks if bone is connected to bone2, while using only bones
- * @param {Bone} bone - start bone
- * @param {Bone} bone2 - end bone
- * @param {Bone[]} bones - bones which can be used in connected "path"
- * @param {boolean[]} usedBones - booleans for bones if they were already used
- * @returns {boolean} bone is connected with bone2 trough bones.
- */
-function isBoneConnectedToBone2TroughBones(bone, bone2, bones, usedBones) {
-    if (bone == bone2) {
-        return true;
-    }
-    for (var i = 0; i < bones.length; i++) {
-        if (usedBones[i]) {
-            continue;
-        }
 
-        // check connection trough parent
-        if (bone.parent && bone.parent == bones[i]) {
-            usedBones[i] = true;
-            if (isBoneConnectedToBone2TroughBones(bones[i], bone2, bones, usedBones)) {
-                return true;
-            }
-            usedBones[i] = false;
-        }
-
-        // check connection trough parent.children since connection can be trough start point
-        if (bone.parent){
-            for (var j = 0; j < bone.parent.children.length; j++) {
-                var child = bone.parent.children[j];
-                if (child == bones[i]) {
-                    usedBones[i] = true;
-                    if (isBoneConnectedToBone2TroughBones(bones[i], bone2, bones, usedBones)) {
-                        return true;
-                    }
-                    usedBones[i] = false;
+// ------------------- Others -------------------
+function returnBiggestComponent(listOfBones) {
+    var actual = new HashSet();
+    var tmpRes = new HashSet();
+    actual.fill(listOfBones);
+    var keyArray = actual.keyArray();
+    var res = [];
+    //BFS
+    while (!actual.isEmpty()) {
+        var queue = [];
+        tmpRes.clear();
+        queue.push(keyArray[0]);
+        actual.remove(keyArray[0]);
+        while (queue[0]) {
+            //look at all child and ask if they are in set
+            for (var i = 0; i < queue[0].children.length; i++) {
+                if (actual.contains(queue[0].children[i]) && !tmpRes.contains(queue[0].children[i])) {
+                    queue.push(queue[0].children[i]);
+                    actual.remove(queue[0].children[i]);
                 }
             }
-        }
-
-        // check connection trough children
-        for (var j = 0; j < bone.children.length; j++) {
-            var child = bone.children[j];
-            if (child == bones[i]) {
-                usedBones[i] = true;
-                if (isBoneConnectedToBone2TroughBones(bones[i], bone2, bones, usedBones)) {
-                    return true;
-                }
-                usedBones[i] = false;
+            //also look at parent and ask if it is in set
+            if (queue[0].parent && actual.contains(queue[0].parent)) {
+                queue.push(queue[0].parent);
+                actual.remove(queue[0].parent);
             }
+            //remove first element from queue;
+            tmpRes.add(queue.shift());
+        }
+        //actualize key array
+        keyArray = actual.keyArray();
+        var tmpResArray = tmpRes.keyArray();
+        if (res.length < tmpResArray.length) {
+            res = tmpResArray.slice();
         }
     }
-    return false;
-}
+    return res;
+};
+

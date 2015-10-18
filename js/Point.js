@@ -39,7 +39,7 @@ Point.prototype.radiansTo = function (point) {
  * @param p2 Point of second line.
  * @returns {number} angle between lines
  */
-Point.prototype.radians2To = function (p1, p2){
+Point.prototype.radians2To = function (p1, p2) {
     return (-1) * (p1.radiansTo(this) - this.radiansTo(p2));
 };
 
@@ -47,23 +47,23 @@ Point.prototype.draw = function (context, selected) {
     var position = {x: this.x, y: this.y};
     var color = this.selected || selected ? SELECTED_COLOR : DEFAULT_COLOR;
     color = this.highlighted ? HIGHLIGHT_COLOR : color;
-    drawDiskPart(context, position, this.RADIUS, color, 0, 2*Math.PI);
+    drawDiskPart(context, position, this.RADIUS, color, 0, 2 * Math.PI);
 };
 
 Point.prototype.positionCollide = function (position) {
     var distance = this.getDistance(new Point(position.x, position.y));
-    if (distance <= this.RADIUS){
+    if (distance <= this.RADIUS) {
         return this;
     }
     return false;
 };
 
-Point.prototype.deselect = function(){
+Point.prototype.deselect = function () {
     this.selected = false;
 };
 
 
-Point.prototype.select = function(){
+Point.prototype.select = function () {
     this.selected = true;
 };
 

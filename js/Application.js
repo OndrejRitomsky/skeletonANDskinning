@@ -61,22 +61,24 @@ Application.prototype.initEnterLeaveButtonEvents = function () {
     });
 };
 
-Application.prototype.initButtons = function(){
+Application.prototype.initButtons = function () {
     var self = this;
-    function appButtonClick(button, isStateButton){
-        if (self.activeButton){
+
+    function appButtonClick(button, isStateButton) {
+        if (self.activeButton) {
             self.activeButton.removeClass("active");
         }
-        if (isStateButton){
+        if (isStateButton) {
             self.stateButtonClicked = true;
             button.addClass("active");
             self.activeButton = button;
         }
     }
+
     var resetButton = $("#reset");
     resetButton.click(function () {
         self.canvas.resetAll();
-        appButtonClick(resetButton,false);
+        appButtonClick(resetButton, false);
         self.stateButtonClicked = true;
     });
     this.buttons[resetButton[0].id] = resetButton;
@@ -84,7 +86,7 @@ Application.prototype.initButtons = function(){
     var selectButton = $("#select");
     selectButton.click(function () {
         self.canvas.selectionButtonClick();
-        appButtonClick(selectButton,true);
+        appButtonClick(selectButton, true);
     });
     this.buttons[selectButton[0].id] = selectButton;
 
@@ -137,10 +139,10 @@ Application.prototype.enabledDisableButtons = function (selectedTypeName) {
     // disable button based on button config.canBeDisabled
     var id;
     for (id in this.buttons) {
-        var config = ButtonConfig[id+"Button"];
-        if (config){
+        var config = ButtonConfig[id + "Button"];
+        if (config) {
             var disable = config["canBeDisabled"];
-            if (disable){
+            if (disable) {
                 this.buttons[id].prop("disabled", "disabled");
             }
         }
@@ -149,10 +151,10 @@ Application.prototype.enabledDisableButtons = function (selectedTypeName) {
     // enable button based on buttonConfig.selectedType
     for (id in this.buttons) {
         var button = this.buttons[id];
-        var config = ButtonConfig[id+"Button"];
-        if (config && config.enabledWhen){
-            var enable = config.enabledWhen["selected"+selectedTypeName];
-            if (enable){
+        var config = ButtonConfig[id + "Button"];
+        if (config && config.enabledWhen) {
+            var enable = config.enabledWhen["selected" + selectedTypeName];
+            if (enable) {
                 button.prop("disabled", false);
             }
         }
@@ -170,21 +172,13 @@ Application.prototype.getDescription = function () {
 Application.prototype.initCanvas = function () {
     var canvas = $("#canvas")[0];
     var context = canvas.getContext("2d");
-
     this.canvas = new Canvas(canvas, context, this);
-
-    var self = this;
-    window.addEventListener("resize",
-        function () {
-            self.canvas.resizeToWindow.call(self.canvas);
-        }
-        , false);
 };
 
 Application.prototype.initKeyPress = function () {
     var self = this;
-    $(document).keydown(function(e){
-        switch(e.which) {
+    $(document).keydown(function (e) {
+        switch (e.which) {
             // "s"
             case 83:
                 self.buttons["select"].trigger("click");

@@ -4,11 +4,11 @@ var ButtonConfig = {
     fenceSelectButton: {},
 
     drawSkeletonButton: {
-       canBeDisabled: true,
-       enabledWhen: {
-           selectedNONE: true,
-           selectedPOINT: true
-       }
+        canBeDisabled: true,
+        enabledWhen: {
+            selectedNONE: true,
+            selectedPOINT: true
+        }
     },
 
     drawSkinButton: {

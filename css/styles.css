@@ -15,7 +15,7 @@ body {
     font-style: italic;
     font-size: 16px;
     background-color: #AAAAAA;
-  
+
 }
 
 #container {
@@ -28,7 +28,7 @@ html {
 
 #controlPanel {
     border-bottom: 2px black solid;
-    background-color: white; 
+    background-color: white;
 }
 
 #canvasPanel {
@@ -52,7 +52,7 @@ html {
     padding: 10px 15px 10px 15px;
     text-decoration: none;
     font-weight: bold;
-    border: none;    
+    border: none;
     color: white;
 }
 
@@ -71,7 +71,7 @@ html {
 }
 
 .active {
-    background: #FFA822;  
+    background: #FFA822;
     background-image: -webkit-linear-gradient(top, #AA4444, #FFA822);
     background-image: -moz-linear-gradient(top, #AA4444, #FFA822);
     background-image: -ms-linear-gradient(top, #AA4444, #FFA822);
@@ -79,6 +79,6 @@ html {
     background-image: linear-gradient(to bottom, #AA4444, #FFA822);
 }
 
-.btn[disabled]{
+.btn[disabled] {
     display: none;
 }

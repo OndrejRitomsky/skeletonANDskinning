@@ -1,31 +1,28 @@
-/**
- * Created by Mato on 10/18/2015.
- */
-var HashSet = function () {
+function HashSet() {
     this.set = [];
 };
 
 HashSet.prototype.add = function (key) {
-    if(!this.contains(key)){
+    if (!this.contains(key)) {
         this.set.push(key);
     }
 };
 
 HashSet.prototype.remove = function (key) {
     var pos = -1;
-    for(var i = 0; i < this.set.length; i++){
-        if(key === this.set[i]) {
+    for (var i = 0; i < this.set.length; i++) {
+        if (key === this.set[i]) {
             pos = i;
             break;
         }
     }
-    if(pos != -1){
+    if (pos != -1) {
         var x = [];
         var y = [];
-        for(var i = 0; i < this.set.length; i++){
-            if(i < pos) {
+        for (var i = 0; i < this.set.length; i++) {
+            if (i < pos) {
                 x.push(this.set[i]);
-            } else if(i > pos){
+            } else if (i > pos) {
                 y.push(this.set[i]);
             }
         }
@@ -39,8 +36,8 @@ HashSet.prototype.clear = function () {
 };
 
 HashSet.prototype.contains = function (key) {
-    for(var i = 0; i < this.set.length; i++){
-        if(key === this.set[i]) {
+    for (var i = 0; i < this.set.length; i++) {
+        if (key === this.set[i]) {
             return true;
         }
     }
@@ -52,14 +49,14 @@ HashSet.prototype.isEmpty = function () {
 };
 
 HashSet.prototype.fill = function (array) {
-    for(var i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
         this.add(array[i]);
     }
 };
 
 HashSet.prototype.keyArray = function () {
     var res = [];
-    for(var i = 0; i < this.set.length; i++) {
+    for (var i = 0; i < this.set.length; i++) {
         res.push(this.set[i]);
     }
     return res;

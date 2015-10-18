@@ -8,7 +8,7 @@ var CANVAS_STATES = {
     DRAW_SKIN: 7
 };
 
-var SELECTED_OBJECT_TYPE = {
+    var SELECTED_OBJECT_TYPE = {
     NONE: 0,
     POINT: 1,
     BONE: 2,
@@ -46,11 +46,16 @@ function Canvas(canvas, context, app) {
         ev.preventDefault();
     };
 
+    window.addEventListener("resize",
+        function () {
+            self.resizeToWindow();
+        }
+        , false);
+
     this.resetAll();
     this.frame();
 
     this.selectedObject = null;
-
     var selectedObjectType;
     Object.defineProperty(this, "selectedObjectType", {
         set: function (value) {
@@ -71,7 +76,6 @@ function Canvas(canvas, context, app) {
             return selectedObjectType;
         }
     });
-
 
     this.savedPosition = null;
     this.skin = [];
@@ -195,7 +199,7 @@ Canvas.prototype.resetAll = function () {
     this.deselect();
     this.clearCanvas();
     this.resizeToWindow();
-    this.state = CANVAS_STATES.NONE;
+    this.state = CANVAS_STATES.IDLE;
     this.app.setDescription(Resources.default);
 };
 
@@ -249,10 +253,10 @@ Canvas.prototype.draw = function () {
         drawLine(this.context, position1, position2, DEFAULT_COLOR, 1);
     }
     if (this.state != CANVAS_STATES.DRAW_SKIN && this.skin.length > 2) {
-        var pos = this.skin[this.skin.length - 1];
-        var pos2 = this.skin[0];
-        var position1 = {x: pos[0], y: pos[1]};
-        var position2 = {x: pos2[0], y: pos2[1]};
+        pos = this.skin[this.skin.length - 1];
+        pos2 = this.skin[0];
+        position1 = {x: pos[0], y: pos[1]};
+        position2 = {x: pos2[0], y: pos2[1]};
         drawLine(this.context, position1, position2, DEFAULT_COLOR, 1);
     }
 
@@ -449,29 +453,6 @@ Canvas.prototype.removeBone = function (bone) {
     }
 };
 
-// will be used with skin for disabling skinning not connected bones
-Canvas.prototype.areSelectedBonesConntected = function(){
-    if (this.selectedObjectType != SELECTED_OBJECT_TYPE.ARRAY){
-        return true;
-    }
-
-    var booleans = [true];
-    for (var i = 1; i < this.selectedObject.length; i++){
-        booleans.push(false);
-    }
-    for (i = 1; i < this.selectedObject.length; i++) {
-
-        if (!isBoneConnectedToBone2TroughBones(this.selectedObject[0], this.selectedObject[i], this.selectedObject, booleans)){
-            return false;
-        }
-
-        for (var j = 1; j < booleans.length; j++){
-            booleans[j] = false;
-        }
-    }
-    return true;
-};
-
 Canvas.prototype.fenceSelect = function (point) {
     if (!this.savedPosition) {
         this.deselect();
@@ -481,14 +462,13 @@ Canvas.prototype.fenceSelect = function (point) {
         for (var i = 0; i < this.bones.length; i++) {
             if (this.bones[i].isInRectangle(this.savedPosition, point)){
                 selectedBones.push(this.bones[i]);
-                //this.bones[i].select();
             }
         }
-        var x = this.returnBiggestComponent(selectedBones);
-        for (var i = 0; i < x.length; i++) {
-            x[i].select();
+        var bones = returnBiggestComponent(selectedBones);
+        for (var i = 0; i < bones.length; i++) {
+            bones[i].select();
         }
-        selectedBones = x;
+        selectedBones = bones;
 
         if (selectedBones.length == 1){
             this.selectedObjectType = SELECTED_OBJECT_TYPE.BONE;
@@ -625,46 +605,3 @@ Canvas.prototype.drawSkinButtonClick = function () {
     this.state = CANVAS_STATES.DRAW_SKIN;
     this.app.setDescription(Resources.drawSkinButton.pickPosition);
 };
-
-Canvas.prototype.returnBiggestComponent = function (listOfBones) {
-    var actual = new HashSet();
-    var tmpRes = new HashSet();
-    actual.fill(listOfBones);
-    var keyArray = actual.keyArray();
-    var res = [];
-    //BFS
-    while (!actual.isEmpty()){
-        var queue = [];
-        tmpRes.clear();
-        queue.push(keyArray[0]);
-        actual.remove(keyArray[0]);
-        while(queue[0]){
-            //look at all child and ask if they are in set
-            for(var i = 0; i < queue[0].children.length; i++){
-                if(actual.contains(queue[0].children[i]) && !tmpRes.contains(queue[0].children[i])){
-                    queue.push(queue[0].children[i]);
-                    actual.remove(queue[0].children[i]);
-                }
-            }
-            //also look at parent and ask if it is in set
-            if(queue[0].parent && actual.contains(queue[0].parent)){
-                queue.push(queue[0].parent);
-                actual.remove(queue[0].parent);
-            }
-            //remove first element from queue;
-            tmpRes.add(queue.shift());
-        }
-        //actualize key array
-        keyArray = actual.keyArray();
-        var tmpResArray = tmpRes.keyArray();
-        if(res.length < tmpResArray.length){
-            res = tmpResArray.slice();
-        }
-    }
-    return res;
-};
-
-
-
-
-

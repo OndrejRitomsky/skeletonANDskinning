@@ -12,7 +12,7 @@ var Resources = {
     },
 
     fenceSelectButton: {
-        select: "Select one or more bones by creating selecting rectangle around them",
+        select: "Select one or more bones by fencing them, chooses biggest connected component",
         tooltip: "Select multiple bones at once (sc. 'f')"
     },
 
@@ -24,7 +24,7 @@ var Resources = {
 
     drawSkinButton: {
         pickPosition: "Click on canvas to choose starting point",
-        createSkin: "Click on canvas to create skin, canceling command after 2 parts were created will close polyline",
+        createSkin: "Click on canvas to create skin",
         tooltip: "Draw skin for selected connected bones (sc. 'i')"
     },
 

@@ -188,6 +188,12 @@ Bone.prototype.isInRectangle = function(pos1, pos2){
     function pointIsInRectangle(point, pos1, pos2) {
         return point.x < pos2.x && point.x > pos1.x && point.y < pos2.y && point.y > pos1.y;
     }
+    var minPos = {x:0,y:0}, maxPos = {x:0,y:0};
+    minPos.x = pos1.x < pos2.x ? pos1.x : pos2.x;
+    maxPos.x = pos1.x > pos2.x ? pos1.x : pos2.x;
 
-    return pointIsInRectangle(this.startPoint, pos1, pos2) && pointIsInRectangle(this.endPoint, pos1, pos2);
+    minPos.y = pos1.y < pos2.y ? pos1.y : pos2.y;
+    maxPos.y = pos1.y > pos2.y ? pos1.y : pos2.y;
+
+    return pointIsInRectangle(this.startPoint, minPos, maxPos) && pointIsInRectangle(this.endPoint, minPos, maxPos);
 };
