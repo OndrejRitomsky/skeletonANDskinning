@@ -9,20 +9,14 @@
 <div id="container">
     <div id="controlPanel">
         <div id="controls">
-            <?-- <input type="button" value="showEditorTest" id="open"-->
-            <?-- <input type="button" value="closeEditorTest" id="close"-->
-            <input type="button" class="menuButton active" value="clear" id="clear">
-            <span class="separator"></span>
-            <input type="button" class="menuButton" value="selection" id="select">
-            <input type="button" class="menuButton" value="fence selection" id="fenceSelect">
-            <span class="separator"></span>
-            <input type="button" class="menuButton" value="draw skeleton" id="drawSkeleton">
-            <input type="button" class="menuButton" value="draw dumb skin" id="drawSkin">
-            <input type="button" class="menuButton" value="move" id="move">
-            <input type="button" class="menuButton" value="remove bones" id="remove">
-            <span class="separator"></span>
-
-            <input type="button" class="menuButton" value="Forward Kinematics" id="forwardKinematics">
+            <input type="button" class="btn" value="Reset" id="reset">
+            <input type="button" class="btn" value="Select" id="select">
+            <input type="button" class="btn" value="Fence select" id="fenceSelect">
+            <input type="button" class="btn" value="Draw bones" id="drawSkeleton">
+            <input type="button" class="btn" value="Draw skin" id="drawSkin">
+            <input type="button" class="btn" value="Move" id="move">
+            <input type="button" class="btn" value="Remove" id="remove">
+            <input type="button" class="btn" value="Forward kinematics" id="forwardKinematics">
         </div>
 
         <div id="description">
@@ -30,21 +24,18 @@
 
     </div>
     <div id="canvasPanel">
-        <canvas id="canvas" width="800" height="400"></canvas>
+        <canvas id="canvas"></canvas>
     </div>
-    <div id="editorPanel">
-    </div>
+
 </div>
 
 <script src="js/jquery.js"></script>
 <script src="js/Resources.js"></script>
+<script src="js/ButtonConfig.js"></script>
 <script src="js/CanvasFunctions.js"></script>
-<script src="js/app.js"></script>
 <script src="js/Canvas.js"></script>
 <script src="js/Point.js"></script>
-
-<script src="js/Editor.js"></script>
-<script src="js/init.js"></script>
 <script src="js/Bone.js"></script>
+<script src="js/Application.js"></script>
 </body>
 </html>

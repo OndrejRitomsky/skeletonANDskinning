@@ -14,6 +14,8 @@ body {
     padding: 5px 0px 5px 15px;
     font-style: italic;
     font-size: 16px;
+    background-color: #AAAAAA;
+  
 }
 
 #container {
@@ -26,47 +28,57 @@ html {
 
 #controlPanel {
     border-bottom: 2px black solid;
-    background-color: #5588CC;
+    background-color: white; 
 }
 
 #canvasPanel {
     margin: 0px;
     padding: 0px;
-    float: left;
-    display: block;
-}
-
-#canvas {
-    margin:0px;
-    padding: 0;
-    border-right: 2px solid black;
-}
-
-#editorPanel {
-    width: 200px;
-    padding: 0px 0px 0px 10px;
-    float: left;
 }
 
 .hidden {
     display: none;
 }
 
-.menuButton {
-    margin-right: -4px;
-    padding: 0px;
-    margin-top: 4px;
-    margin-bottom: 0px;
+.btn {
+    background: #0b41ad;
+    background-image: -webkit-linear-gradient(top, #0b41ad, #2b97b8);
+    background-image: -moz-linear-gradient(top, #0b41ad, #2b97b8);
+    background-image: -ms-linear-gradient(top, #0b41ad, #2b97b8);
+    background-image: -o-linear-gradient(top, #0b41ad, #2b97b8);
+    background-image: linear-gradient(to bottom, #0b41ad, #2b97b8);
+    font-family: Georgia;
+    font-size: 14px;
+    padding: 10px 15px 10px 15px;
+    text-decoration: none;
+    font-weight: bold;
+    border: none;    
+    color: white;
 }
 
-.separator {
-    margin-left: 15px;
+.btn:hover {
+    text-shadow: 2px 2px 0px black;
 }
 
-#clear {
-    margin-left: 10px;
+#controls {
+    width: 100%;
+    background: #2b97b8;
+    background-image: -webkit-linear-gradient(top, #0b41ad, #2b97b8);
+    background-image: -moz-linear-gradient(top, #0b41ad, #2b97b8);
+    background-image: -ms-linear-gradient(top, #0b41ad, #2b97b8);
+    background-image: -o-linear-gradient(top, #0b41ad, #2b97b8);
+    background-image: linear-gradient(to bottom, #0b41ad, #2b97b8);
 }
 
 .active {
+    background: #FFA822;  
+    background-image: -webkit-linear-gradient(top, #AA4444, #FFA822);
+    background-image: -moz-linear-gradient(top, #AA4444, #FFA822);
+    background-image: -ms-linear-gradient(top, #AA4444, #FFA822);
+    background-image: -o-linear-gradient(top, #AA4444, #FFA822);
+    background-image: linear-gradient(to bottom, #AA4444, #FFA822);
 }
 
+.btn[disabled]{
+    display: none;
+}

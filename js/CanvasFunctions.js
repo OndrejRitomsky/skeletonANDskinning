@@ -1,7 +1,7 @@
 // ------------------------------ DRAW ------------------------------
 var DEFAULT_COLOR = "#000000";
 var SELECTED_COLOR = "#ff0000";
-var BACKGROUND_COLOR = "#ffffff";
+var BACKGROUND_COLOR = "#EEEEEE";
 var HIGHLIGHT_COLOR = "#2222AA";
 var FENCE_COLOR = "RGBA(0, 0, 64, 0.2)";
 

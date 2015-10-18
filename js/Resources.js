@@ -1,6 +1,10 @@
 var Resources = {
     default: "Select command",
 
+    resetButton: {
+        tooltip: "Reset everything!"
+    },
+
     selectButton: {
         select: "Select point by clicking on it",
         selectNext: "Selecting connected point will select bone ",

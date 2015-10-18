@@ -15,6 +15,7 @@ var SELECTED_OBJECT_TYPE = {
     ARRAY: 3
 };
 
+
 window.requestAF = window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
@@ -38,7 +39,6 @@ function Canvas(canvas, context, app) {
     });
 
     this.canvas.addEventListener("mouseup", function (ev) {
-        console.log("click");
         self.onClick(ev);
     });
 
@@ -55,12 +55,24 @@ function Canvas(canvas, context, app) {
     Object.defineProperty(this, "selectedObjectType", {
         set: function (value) {
             selectedObjectType = value;
-            self.app.enabledDisableButtons(value);
+            if (self.state == CANVAS_STATES.IDLE || self.state == CANVAS_STATES.SELECTION
+                || self.state == CANVAS_STATES.FENCE_SELECTION) {
+                var key = "NONE";
+                for (var prop in SELECTED_OBJECT_TYPE) {
+                    if (SELECTED_OBJECT_TYPE[prop] === value) {
+                        key = prop;
+                        break;
+                    }
+                }
+                self.app.enabledDisableButtons(key);
+            }
         },
         get: function(){
             return selectedObjectType;
         }
     });
+
+
     this.savedPosition = null;
     this.skin = [];
     this.app.setDescription(Resources.default);
@@ -131,6 +143,9 @@ Canvas.prototype.cancelAll = function () {
     this.resetState();
     this.deselect();
     this.app.setDescription(Resources.default);
+    if (this.app.activeButton){
+        this.app.activeButton.removeClass("active");
+    }
 };
 
 Canvas.prototype.deselect = function () {
@@ -165,7 +180,7 @@ Canvas.prototype.resize = function (width, height) {
 
 Canvas.prototype.resizeToWindow = function () {
     var height = window.innerHeight - this.app.controlPanel.height() - 2;
-    var width = window.innerWidth - this.app.editorPanel.width() - 12;
+    var width = window.innerWidth;
     this.resize(width, height);
 };
 
@@ -404,6 +419,7 @@ Canvas.prototype.move = function (point) {
         this.savedPosition = null;
         this.selectedObjectType = SELECTED_OBJECT_TYPE.POINT;
         this.deselect();
+        this.app.setDescription(Resources.moveButton.pickPosition);
     }
 };
 
@@ -522,7 +538,6 @@ Canvas.prototype.moveButtonClick = function () {
         this.app.setDescription(Resources.moveButton.move);
         this.selectedObject = selectedPoint;
         selectedPoint.select();
-        this.app.setDescription("You can move joint, choose position and left click to finish or right click to cancel command.");
     }
     this.state = CANVAS_STATES.MOVE;
 };
@@ -584,6 +599,7 @@ Canvas.prototype.destroyButtonClick = function () {
     }
 
     this.deselect();
+    this.app.setDescription(Resources.default);
 };
 
 Canvas.prototype.forwardKinematicsButtonClick = function () {
