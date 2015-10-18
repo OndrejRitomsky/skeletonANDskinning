@@ -553,20 +553,17 @@ Canvas.prototype.destroyButtonClick = function () {
             self.removeBone(bone);
 
         } else if (parent) {
-            parent.removeChild(bone);
-            parent.endPoint = bone.endPoint;
-            parent.endPoint.bone = parent;
-            parent.recalculateLength();
-            parent.recalculateAngle(parent.endPoint);
             for (i = 0; i < children.length; i++) {
                 parent.children.push(children[i]);
                 children[i].parent = parent;
-                children[i].startPoint = parent.getEndPoint();
+                children[i].startPoint = parent.endPoint;
+                children[i].recalculateLength();
                 children[i].recalculateAngle(children[i].endPoint);  //  A   C   blesk  D   C
                 for(var j = 0; j < children[i].children.length; j++){
                     children[i].children[j].recalculateAngle(children[i].children[j].endPoint);
                 }
             }
+            parent.removeChild(bone);
             self.removeBone(bone);
 
         } else if (!parent && children.length == 0) {

@@ -1,33 +1,33 @@
 function HashSet() {
     this.set = [];
-};
+}
 
-HashSet.prototype.add = function (key) {
-    if (!this.contains(key)) {
-        this.set.push(key);
+HashSet.prototype.add = function (value) {
+    if (!this.contains(value)) {
+        this.set.push(value);
     }
 };
 
-HashSet.prototype.remove = function (key) {
-    var pos = -1;
+HashSet.prototype.remove = function (value) {
+    var position = -1;
     for (var i = 0; i < this.set.length; i++) {
-        if (key === this.set[i]) {
-            pos = i;
+        if (value === this.set[i]) {
+            position = i;
             break;
         }
     }
-    if (pos != -1) {
-        var x = [];
-        var y = [];
+    if (position != -1) {
+        var left = [];
+        var right = [];
         for (var i = 0; i < this.set.length; i++) {
-            if (i < pos) {
-                x.push(this.set[i]);
-            } else if (i > pos) {
-                y.push(this.set[i]);
+            if (i < position) {
+                left.push(this.set[i]);
+            } else if (i > position) {
+                right.push(this.set[i]);
             }
         }
         this.clear();
-        this.set = x.concat(y);
+        this.set = left.concat(right);
     }
 };
 
@@ -35,9 +35,9 @@ HashSet.prototype.clear = function () {
     this.set.length = 0;
 };
 
-HashSet.prototype.contains = function (key) {
+HashSet.prototype.contains = function (value) {
     for (var i = 0; i < this.set.length; i++) {
-        if (key === this.set[i]) {
+        if (value === this.set[i]) {
             return true;
         }
     }

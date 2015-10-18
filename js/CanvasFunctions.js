@@ -64,5 +64,5 @@ function returnBiggestComponent(listOfBones) {
         }
     }
     return res;
-};
+}
 

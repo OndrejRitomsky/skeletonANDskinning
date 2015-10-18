@@ -3,8 +3,8 @@
  *
  * @constructor
  * @this {Bone}
- * @param startPoint Start point of Bone.
- * @param endPoint Endpoint of Bone.
+ * @param startPoint Start point of bone.
+ * @param endPoint Endpoint of bone.
  * @param parent Parent of created bone.
  */
 function Bone(startPoint, endPoint, parent) {
@@ -108,6 +108,12 @@ Bone.prototype.setAngle = function (angle) {
     }
 };
 
+/**
+ * Calculate and set angle form start point to given end point.
+ *
+ * @this {Bone}
+ * @param {Point} endPoint The end point which with start point make new angle.
+ */
 Bone.prototype.recalculateAngle = function (endPoint) {
     if (!this.parent) {
         this.angle = this.startPoint.radiansTo(endPoint);
@@ -116,6 +122,11 @@ Bone.prototype.recalculateAngle = function (endPoint) {
     }
 };
 
+/**
+ * Calculate and set length of bone.
+ *
+ * @this {Bone}
+ */
 Bone.prototype.recalculateLength = function () {
     this.length = this.getEndPoint().getDistance(this.startPoint);
 };
