@@ -195,6 +195,8 @@ Canvas.prototype.resetAll = function () {
     this.deselect();
     this.clearCanvas();
     this.resizeToWindow();
+    this.state = CANVAS_STATES.NONE;
+    this.app.setDescription(Resources.default);
 };
 
 Canvas.prototype.frame = function () {
@@ -545,7 +547,6 @@ Canvas.prototype.moveButtonClick = function () {
 // TODO tieto hlupe kontroly na instance tu nemusia byt, staci disablovat toto tlacitko podla selectu, napr dame classy
 // ze ake selecty podporuje
 Canvas.prototype.destroyButtonClick = function () {
-    console.log("?");
     if (!this.selectedObject) {
         return;
     }
@@ -586,13 +587,11 @@ Canvas.prototype.destroyButtonClick = function () {
             self.removeBone(bone);
         }
     }
-    console.log("a");
+
     if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
         removeBone(this.selectedObject);
-        console.log("b");
 
     } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.ARRAY) {
-        console.log("c");
         for (var i = 0; i < this.selectedObject.length; i++){
             removeBone(this.selectedObject[i]);
         }

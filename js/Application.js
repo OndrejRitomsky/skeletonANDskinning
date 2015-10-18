@@ -77,6 +77,7 @@ Application.prototype.initButtons = function(){
     resetButton.click(function () {
         self.canvas.resetAll();
         appButtonClick(resetButton,false);
+        self.stateButtonClicked = true;
     });
     this.buttons[resetButton[0].id] = resetButton;
 
@@ -181,36 +182,36 @@ Application.prototype.initCanvas = function () {
 };
 
 Application.prototype.initKeyPress = function () {
-    var canvas = this.canvas;
+    var self = this;
     $(document).keydown(function(e){
         switch(e.which) {
             // "s"
             case 83:
-                canvas.selectionButtonClick();
+                self.buttons["select"].trigger("click");
                 break;
             // "f"
             case 70:
-                canvas.fenceSelectionButtonClick();
+                self.buttons["fenceSelect"].trigger("click");
                 break;
             // "e"
             case 69:
-                canvas.drawSkeletonButtonClick();
+                self.buttons["drawSkeleton"].trigger("click");
                 break;
             // "i"
             case 73:
-                canvas.drawSkinButtonClick();
+                self.buttons["drawSkin"].trigger("click");
                 break;
             // "m"
             case 77:
-                canvas.moveButtonClick();
+                self.buttons["move"].trigger("click");
                 break;
             // "r"
             case 82:
-                canvas.destroyButtonClick();
+                self.buttons["remove"].trigger("click");
                 break;
             // "k"
             case 75:
-                canvas.forwardKinematicsButtonClick();
+                self.buttons["forwardKinematics"].trigger("click");
                 break;
         }
     });
