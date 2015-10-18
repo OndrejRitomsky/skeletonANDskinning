@@ -133,6 +133,10 @@ Application.prototype.initButtons = function () {
     this.buttons[forwardKinematicsButton[0].id] = forwardKinematicsButton;
 
     // TODO update drawskin button config, when skin obj is created
+
+    for (var id in this.buttons){
+        this.buttons[id][0].style.cursor="pointer";
+    }
 };
 
 Application.prototype.enabledDisableButtons = function (selectedTypeName) {
@@ -158,6 +162,9 @@ Application.prototype.enabledDisableButtons = function (selectedTypeName) {
                 button.prop("disabled", false);
             }
         }
+    }
+    if (this.canvas.bones.length > 0 && selectedTypeName != "POINT"){
+        this.buttons["drawSkeleton"].prop("disabled","disabled");
     }
 };
 

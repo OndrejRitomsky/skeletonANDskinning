@@ -584,18 +584,21 @@ Canvas.prototype.destroyButtonClick = function () {
     }
 
     this.deselect();
+    this.state = CANVAS_STATES.IDLE;
     this.app.setDescription(Resources.default);
 };
 
 Canvas.prototype.forwardKinematicsButtonClick = function () {
-    var selectedObject = this.selectedObject;
-    var selectedObjectType = this.selectedObjectType;
-    this.cancelAll();
+    if (this.selectedObjectType != SELECTED_OBJECT_TYPE.BONE && this.selectedObjectType != SELECTED_OBJECT_TYPE.POINT){
+        this.cancelAll();
+    }
+
     this.app.setDescription(Resources.forwardKinematicsButton.pickBone);
-    if (selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
+    if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
         this.app.setDescription(Resources.forwardKinematicsButton.forward);
-        this.selectedObject = selectedObject;
-        this.selectedObjectType = selectedObjectType;
+        this.selectedObject = this.selectedObject;
+        this.selectedObjectType = this.selectedObjectType;
+
     }
     this.state = CANVAS_STATES.FORWARD_KINEMATICS;
 };

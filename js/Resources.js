@@ -19,7 +19,7 @@ var Resources = {
     drawSkeletonButton: {
         pickPosition: "Click on canvas to choose starting point of first bone",
         createBone: "Click on canvas to create bone (hold ctrl to not jump to new point)",
-        tooltip: "Draw bones, but there can be only one skeleton in the canvas(sc. 'e')"
+        tooltip: "Draw bones, but there can be only one skeleton in the canvas (sc. 'e')"
     },
 
     drawSkinButton: {
