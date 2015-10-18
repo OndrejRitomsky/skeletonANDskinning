@@ -478,12 +478,17 @@ Canvas.prototype.fenceSelect = function (point) {
         this.savedPosition = point;
     } else {
         var selectedBones = [];
-        for (var i = 0; i < this.bones.length; i++){
+        for (var i = 0; i < this.bones.length; i++) {
             if (this.bones[i].isInRectangle(this.savedPosition, point)){
                 selectedBones.push(this.bones[i]);
-                this.bones[i].select();
+                //this.bones[i].select();
             }
         }
+        var x = this.returnBiggestComponent(selectedBones);
+        for (var i = 0; i < x.length; i++) {
+            x[i].select();
+        }
+        selectedBones = x;
 
         if (selectedBones.length == 1){
             this.selectedObjectType = SELECTED_OBJECT_TYPE.BONE;
@@ -570,13 +575,14 @@ Canvas.prototype.destroyButtonClick = function () {
         } else if (parent) {
             parent.removeChild(bone);
             parent.endPoint = bone.endPoint;
+            parent.endPoint.bone = parent;
             parent.recalculateLength();
             parent.recalculateAngle(parent.endPoint);
             for (i = 0; i < children.length; i++) {
                 parent.children.push(children[i]);
                 children[i].parent = parent;
                 children[i].startPoint = parent.getEndPoint();
-                children[i].recalculateAngle(children[i].endPoint);  //  A   C    D
+                children[i].recalculateAngle(children[i].endPoint);  //  A   C   blesk  D   C
                 for(var j = 0; j < children[i].children.length; j++){
                     children[i].children[j].recalculateAngle(children[i].children[j].endPoint);
                 }
@@ -614,13 +620,49 @@ Canvas.prototype.forwardKinematicsButtonClick = function () {
     this.state = CANVAS_STATES.FORWARD_KINEMATICS;
 };
 
-
 Canvas.prototype.drawSkinButtonClick = function () {
     this.cancelAll();
     this.state = CANVAS_STATES.DRAW_SKIN;
     this.app.setDescription(Resources.drawSkinButton.pickPosition);
 };
 
+Canvas.prototype.returnBiggestComponent = function (listOfBones) {
+    var actual = new HashSet();
+    var tmpRes = new HashSet();
+    actual.fill(listOfBones);
+    var keyArray = actual.keyArray();
+    var res = [];
+    //BFS
+    while (!actual.isEmpty()){
+        var queue = [];
+        tmpRes.clear();
+        queue.push(keyArray[0]);
+        actual.remove(keyArray[0]);
+        while(queue[0]){
+            //look at all child and ask if they are in set
+            for(var i = 0; i < queue[0].children.length; i++){
+                if(actual.contains(queue[0].children[i]) && !tmpRes.contains(queue[0].children[i])){
+                    queue.push(queue[0].children[i]);
+                    actual.remove(queue[0].children[i]);
+                }
+            }
+            //also look at parent and ask if it is in set
+            if(queue[0].parent && actual.contains(queue[0].parent)){
+                queue.push(queue[0].parent);
+                actual.remove(queue[0].parent);
+            }
+            //remove first element from queue;
+            tmpRes.add(queue.shift());
+        }
+        //actualize key array
+        keyArray = actual.keyArray();
+        var tmpResArray = tmpRes.keyArray();
+        if(res.length < tmpResArray.length){
+            res = tmpResArray.slice();
+        }
+    }
+    return res;
+};
 
 
 
