@@ -218,7 +218,7 @@ Canvas.prototype.update = function () {
         var endPoint = bone.endPoint;
         var startPoint = bone.startPoint
 
-        var angle = bone.startPoint.radiansTo(new Point(this.mousePos[0], this.mousePos[1]));
+        var angle = bone.startPoint.radiansTo(new Point(this.mousePos));
         endPoint.position[0] = startPoint.position[0] + Math.cos(angle) * bone.length;
         endPoint.position[1] = startPoint.position[1] + Math.sin(angle) * bone.length;
 
