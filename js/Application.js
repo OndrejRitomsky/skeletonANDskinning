@@ -6,7 +6,6 @@ $(document).ready(function () {
  * Main object in the page which handles global things, is singleton
  * @constructor
  */
-
 function Application() {
 
     if (typeof Application.instance === 'object') {

@@ -32,66 +32,52 @@ Bone.prototype.LINE_WIDTH = 3;
  * Calculate and set end point coordinates of bone.
  *
  * @this {Bone}
- * @returns {Point} End point of bone.
+ * @returns {Array} End point position
  */
 Bone.prototype.recalculateEndPoint = function () {
     var angle = this.angle;
     var currentBone = this.parent;
-    while (currentBone instanceof Bone) {
+    while (currentBone) {
         angle += currentBone.angle;
         currentBone = currentBone.parent;
     }
 
-    if(this.children[0]) {
-        for(var i = 0; i < this.children.length; i++){
-            this.children[i].startPoint.x = this.startPoint.x + Math.cos(angle) * this.length;
-            this.children[i].startPoint.y = this.startPoint.y + Math.sin(angle) * this.length;
+    var position, startPosition = this.startPoint.position;
+    if (this.children[0]) {
+        position = [0, 0];
+        position[0] = startPosition[0] + Math.cos(angle) * this.length;
+        position[1] = startPosition[1] + Math.sin(angle) * this.length;
+        for (var i = 0; i < this.children.length; i++) {
+            this.children[i].startPoint.position = position;
         }
-        return this.children[0].startPoint;
     } else {
-        this.endPoint.x = this.startPoint.x + Math.cos(angle) * this.length;
-        this.endPoint.y = this.startPoint.y + Math.sin(angle) * this.length;
-        return this.endPoint;
+        position = this.endPoint.position;
+        position[0] = startPosition[0] + Math.cos(angle) * this.length;
+        position[1] = startPosition[1] + Math.sin(angle) * this.length;
     }
+    return position;
 };
 
 /**
- * Return end point of bone.
+ * Set position of startPoint
  *
- * @this{Bone}
- * @returns {Point} End point of bone.
+ * @param {Array} position New position.
  */
-Bone.prototype.getEndPoint = function () {
-    if(!this.children[0]){
-        return this.endPoint;
-    }else {
-        return this.children[0].startPoint;
-    }
-};
-
-/**
- * Set coordinates of start point to coordinates of point.
- *
- * @param {Point} point Point with new coordinates.
- */
-Bone.prototype.setStartPoint = function (point){
-    this.startPoint.x = point.x;
-    this.startPoint.y = point.y;
+Bone.prototype.setStartPoint = function (position){
+    this.startPoint.position = position;
 };
 
 /**
  * Set start point of bone and calculate start point of all its children.
  *
  * @this{Bone}
- * @param {Point} point New start point of bone.
+ * @param {Array} position New position.
  */
-Bone.prototype.recalculateStartPoint = function (point) {
-    this.setStartPoint(point);
-    if (this.children.length < 1) {
-        this.recalculateEndPoint();
-    }
+Bone.prototype.recalculateStartPoint = function (position) {
+    this.setStartPoint(position);
+    var endPointPosition = this.recalculateEndPoint();
     for (var i = 0; i < this.children.length; i++) {
-        this.children[i].recalculateStartPoint(this.recalculateEndPoint());
+        this.children[i].recalculateStartPoint(endPointPosition);
     }
 };
 
@@ -128,17 +114,17 @@ Bone.prototype.recalculateAngle = function (endPoint) {
  * @this {Bone}
  */
 Bone.prototype.recalculateLength = function () {
-    this.length = this.getEndPoint().getDistance(this.startPoint);
+    this.length = this.endPoint.getDistance(this.startPoint);
 };
 
 Bone.prototype.draw = function (context, selected) {
-    var position1 = {x: this.startPoint.x, y: this.startPoint.y};
-    var position2 = {x: this.getEndPoint().x, y: this.getEndPoint().y};
+    var position1 = this.startPoint.position;
+    var position2 = this.endPoint.position;
     var color = selected || this.selected ? SELECTED_COLOR : DEFAULT_COLOR;
     color = this.highlighted ? HIGHLIGHT_COLOR : color;
     drawLine(context, position1, position2, color, this.LINE_WIDTH);
     this.startPoint.draw(context, selected);
-    this.getEndPoint().draw(context, selected);
+    this.endPoint.draw(context, selected);
 };
 
 Bone.prototype.positionCollide = function (position) {
@@ -196,15 +182,16 @@ Bone.prototype.setHighlight = function (value) {
 };
 
 Bone.prototype.isInRectangle = function(pos1, pos2){
-    function pointIsInRectangle(point, pos1, pos2) {
-        return point.x < pos2.x && point.x > pos1.x && point.y < pos2.y && point.y > pos1.y;
+    function pointIsInRectangle(pointPosition, startPos, endPos) {
+        return pointPosition[0] < endPos[0] && pointPosition[0] > startPos[0]
+                && pointPosition[1] < endPos[1] && pointPosition[1] > startPos[1];
     }
-    var minPos = {x:0,y:0}, maxPos = {x:0,y:0};
-    minPos.x = pos1.x < pos2.x ? pos1.x : pos2.x;
-    maxPos.x = pos1.x > pos2.x ? pos1.x : pos2.x;
+    var minPos = [0, 0], maxPos = [0, 0];
+    minPos[0] = pos1[0] < pos2[0] ? pos1[0] : pos2[0];
+    maxPos[0] = pos1[0] > pos2[0] ? pos1[0] : pos2[0];
 
-    minPos.y = pos1.y < pos2.y ? pos1.y : pos2.y;
-    maxPos.y = pos1.y > pos2.y ? pos1.y : pos2.y;
+    minPos[1] = pos1[1] < pos2[1] ? pos1[1] : pos2[1];
+    maxPos[1] = pos1[1] > pos2[1] ? pos1[1] : pos2[1];
 
-    return pointIsInRectangle(this.startPoint, minPos, maxPos) && pointIsInRectangle(this.endPoint, minPos, maxPos);
+    return pointIsInRectangle(this.startPoint.position, minPos, maxPos) && pointIsInRectangle(this.endPoint.position, minPos, maxPos);
 };
