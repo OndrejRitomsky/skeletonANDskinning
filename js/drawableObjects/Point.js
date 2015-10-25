@@ -42,6 +42,20 @@ Point.prototype.radians2To = function (p1, p2) {
     return (-1) * (p1.radiansTo(this) - this.radiansTo(p2));
 };
 
+Point.prototype.middlePoint = function (point) {
+    return new Point([(this.position[0] + point.position[0]) / 2, (this.position[1] + point.position[1]) / 2, 1]);
+};
+
+/**
+ * Clone the point.
+ *
+ * @this{Point}
+ * @returns {Point} Cloned point.
+ */
+Point.prototype.clone = function(){
+    return new Point(this.position);
+};
+
 Point.prototype.draw = function (context, selected) {
     var color = this.selected || selected ? SELECTED_COLOR : DEFAULT_COLOR;
     color = this.highlighted ? HIGHLIGHT_COLOR : color;

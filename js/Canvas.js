@@ -30,6 +30,7 @@ function Canvas(canvas, context, app) {
     this.width = 0;
     this.height = 0;
     this.bones = [];
+    this.skin = new Skin();
     this.state = CANVAS_STATES.IDLE;
     this.mousePos = [-1, -1, 1];
 
@@ -78,7 +79,6 @@ function Canvas(canvas, context, app) {
     });
 
     this.savedPosition = null;
-    this.skin = [];
     this.app.setDescription(Resources.default);
 }
 
@@ -188,7 +188,7 @@ Canvas.prototype.clearCanvas = function (color) {
 
 Canvas.prototype.resetAll = function () {
     this.bones = [];
-    this.skin = [];
+    this.skin.deleteAllPoints();
     this.deselect();
     this.clearCanvas();
     this.resizeToWindow();
@@ -216,7 +216,7 @@ Canvas.prototype.update = function () {
         var bone = this.selectedObject;
 
         var endPoint = bone.endPoint;
-        var startPoint = bone.startPoint
+        var startPoint = bone.startPoint;
 
         var angle = bone.startPoint.radiansTo(new Point(this.mousePos));
         endPoint.position[0] = startPoint.position[0] + Math.cos(angle) * bone.length;
@@ -226,11 +226,14 @@ Canvas.prototype.update = function () {
         var degInRad;
         if (bone.parent) {
             degInRad = bone.startPoint.radians2To(bone.parent.startPoint, endPoint);
+            bone.addFWKTransformation(bone.startPoint, bone.angle - degInRad);
             bone.setAngle(degInRad);
         } else {
             degInRad = bone.startPoint.radiansTo(endPoint);
+            bone.addFWKTransformation(bone.startPoint, bone.angle - degInRad);
             bone.setAngle(degInRad);
         }
+        this.skin.transform();
     }
 };
 
@@ -239,17 +242,9 @@ Canvas.prototype.draw = function () {
         this.bones[i].draw(this.context);
     }
 
-    var position1, position2;
-    for (var i = 1; i < this.skin.length; i++) {
-        position1 = this.skin[i - 1];
-        position2 = this.skin[i];
-        drawLine(this.context, position1, position2, DEFAULT_COLOR, 1);
-    }
-
-    if (this.state != CANVAS_STATES.DRAW_SKIN && this.skin.length > 2) {
-        position1 = this.skin[this.skin.length - 1];
-        position2 = this.skin[0];
-        drawLine(this.context, position1, position2, DEFAULT_COLOR, 1);
+    this.skin.draw(this.context);
+    if (this.state != CANVAS_STATES.DRAW_SKIN && this.skin.points.length > 2) {
+        this.skin.drawCap(this.context);
     }
 
     if (this.state == CANVAS_STATES.CREATING_SKELETON && this.selectedObject) {
@@ -273,7 +268,9 @@ Canvas.prototype.draw = function () {
 };
 
 Canvas.prototype.createSkin = function (position){
-    this.skin.push(position);
+    var skinPoint = new SkinPoint(position[0], position[1]);
+    skinPoint.assignNearestBone(this.bones);
+    this.skin.addPoint(skinPoint);
     this.app.setDescription(Resources.drawSkinButton.createSkin);
 };
 
@@ -429,6 +426,7 @@ Canvas.prototype.forwardKinematics = function (position) {
     }
 
     if (this.selectedObject) {
+        //TODO add transformation matrices to bone and all its related bones
         this.cancelAll();
     }
 };
@@ -582,9 +580,6 @@ Canvas.prototype.forwardKinematicsButtonClick = function () {
     this.app.setDescription(Resources.forwardKinematicsButton.pickBone);
     if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
         this.app.setDescription(Resources.forwardKinematicsButton.forward);
-        this.selectedObject = this.selectedObject;
-        this.selectedObjectType = this.selectedObjectType;
-
     }
     this.state = CANVAS_STATES.FORWARD_KINEMATICS;
 };

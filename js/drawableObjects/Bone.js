@@ -12,6 +12,7 @@ function Bone(startPoint, endPoint, parent) {
     this.endPoint = endPoint;
 
     this.children = [];
+    this.transformations = [[1,0,0],[0,1,0],[0,0,1]];
     this.length = startPoint.getDistance(endPoint);
     this.parent = parent;
 
@@ -115,6 +116,47 @@ Bone.prototype.recalculateAngle = function (endPoint) {
  */
 Bone.prototype.recalculateLength = function () {
     this.length = this.endPoint.getDistance(this.startPoint);
+};
+
+/**
+ * Return 3x3 rotation matrix (with centre in origin of x and y axis) of given angle.
+ *
+ * @param {number} angleInRad The angle of rotation in radians.
+ * @returns {*[]} 3x3 matrix.
+ */
+Bone.prototype.getRotation = function (angleInRad) {
+    var rotMatrix = [[Math.cos(angleInRad), Math.sin(angleInRad), 0],
+                    [-Math.sin(angleInRad), Math.cos(angleInRad), 0],
+                    [0, 0, 1]];
+    return rotMatrix;
+};
+
+/**
+ * Return 3x3 translation matrix.
+ *
+ * @param {number} tx Translation in x direction.
+ * @param {number} ty Translation in x direction.
+ * @returns {*[]} 3x3 matrix.
+ */
+Bone.prototype.getTranslation = function(tx, ty){
+    var translMatrix = [[1, 0, tx],
+                        [0, 1, ty],
+                        [0, 0, 1]];
+    return translMatrix;
+};
+
+/**
+ * Compute transformation matrix of bone.
+ *
+ * @param {number} origin The origin of transformation.
+ * @param {number} angle Difference between old and new angle of bone.
+ */
+Bone.prototype.addFWKTransformation = function (origin, angle) {
+    var tmpMatrix1 = numeric.dot(this.getTranslation(origin.position[0], origin.position[1]), this.getRotation(angle));
+    this.transformations = numeric.dot(tmpMatrix1, this.getTranslation(-origin.position[0], -origin.position[1]));
+    for (var i = 0; i < this.children.length; i++) {
+        this.children[i].addFWKTransformation(origin, angle);
+    }
 };
 
 Bone.prototype.draw = function (context, selected) {
