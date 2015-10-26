@@ -223,16 +223,11 @@ Canvas.prototype.update = function () {
         endPoint.position[1] = startPoint.position[1] + Math.sin(angle) * bone.length;
 
         bone.setHighlightAll(true);
-        var degInRad;
-        if (bone.parent) {
-            degInRad = bone.startPoint.radians2To(bone.parent.startPoint, endPoint);
-            bone.addFWKTransformation(bone.startPoint, bone.angle - degInRad);
-            bone.setAngle(degInRad);
-        } else {
-            degInRad = bone.startPoint.radiansTo(endPoint);
-            bone.addFWKTransformation(bone.startPoint, bone.angle - degInRad);
-            bone.setAngle(degInRad);
-        }
+        var degInRad = bone.parent ? bone.startPoint.radians2To(bone.parent.startPoint, endPoint) :
+                                     bone.startPoint.radiansTo(endPoint);
+
+        bone.addFWKTransformation(bone.startPoint, bone.angle - degInRad);
+        bone.setAngle(degInRad);
         this.skin.transform();
     }
 };

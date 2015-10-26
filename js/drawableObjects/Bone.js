@@ -148,8 +148,8 @@ Bone.prototype.getTranslation = function(tx, ty){
 /**
  * Compute transformation matrix of bone.
  *
- * @param {number} origin The origin of transformation.
- * @param {number} angle Difference between old and new angle of bone.
+ * @param {Point} origin The origin of transformation.
+ * @param {Number} angle Difference between old and new angle of bone.
  */
 Bone.prototype.addFWKTransformation = function (origin, angle) {
     var tmpMatrix1 = numeric.dot(this.getTranslation(origin.position[0], origin.position[1]), this.getRotation(angle));
