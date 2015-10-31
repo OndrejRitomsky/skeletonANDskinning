@@ -1,5 +1,6 @@
 function SkinPoint(x, y) {
     this.coordinates = [x, y, 1];
+    this.cachedCoordinates = [x, y, 1];
     this.weights = [];
     this.bones = [];
 }
@@ -10,7 +11,7 @@ SkinPoint.prototype.transform = function () {
         sum = numeric.add(sum, this.mulMatrixByScalar(this.bones[i].transformations, this.weights[i]));
     }
     if (sum[0][0] != 0) {
-        this.coordinates = numeric.dot(sum, this.coordinates);
+        this.coordinates = numeric.dot(sum, this.cachedCoordinates);
     }
 };
 
@@ -23,6 +24,10 @@ SkinPoint.prototype.mulMatrixByScalar = function (matrix, scalar) {
         }
     }
     return result;
+};
+
+SkinPoint.prototype.cacheCoordinates = function () {
+    this.cachedCoordinates = this.coordinates.slice();
 };
 
 /**
@@ -42,8 +47,7 @@ SkinPoint.prototype.assignNearestBone = function (bones) {
             nearestBone = bones[i];
         }
     }
-    //this.bones.push(nearestBone);
-    //this.weights.push(0.8);
+
     var self = this;
     function isCloseEnough(bone, limit) {
         var tmpPoint = new Point(self.coordinates);

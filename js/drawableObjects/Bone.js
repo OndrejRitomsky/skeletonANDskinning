@@ -22,6 +22,7 @@ function Bone(startPoint, endPoint, parent) {
         this.angle = startPoint.radians2To(this.parent.startPoint, endPoint);
         parent.children.push(this);
     }
+    this.cachedAngle = this.angle;
 
     this.selected = false;
     this.highlighted = false;
@@ -146,6 +147,16 @@ Bone.prototype.getTranslation = function(tx, ty){
 };
 
 /**
+ * Set transformation matrix of this bone to identity matrix.
+ *
+ */
+Bone.prototype.resetTranformationMatrix = function () {
+    this.transformations = [[1, 0, 0],
+                            [0, 1, 0],
+                            [0, 0, 1]];
+};
+
+/**
  * Compute transformation matrix of bone.
  *
  * @param {Point} origin The origin of transformation.
@@ -157,6 +168,10 @@ Bone.prototype.addFWKTransformation = function (origin, angle) {
     for (var i = 0; i < this.children.length; i++) {
         this.children[i].addFWKTransformation(origin, angle);
     }
+};
+
+Bone.prototype.cacheAngle = function () {
+    this.cachedAngle = this.angle;
 };
 
 Bone.prototype.draw = function (context, selected) {

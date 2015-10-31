@@ -226,7 +226,7 @@ Canvas.prototype.update = function () {
         var degInRad = bone.parent ? bone.startPoint.radians2To(bone.parent.startPoint, endPoint) :
                                      bone.startPoint.radiansTo(endPoint);
 
-        bone.addFWKTransformation(bone.startPoint, bone.angle - degInRad);
+        bone.addFWKTransformation(bone.startPoint, bone.cachedAngle - degInRad);
         bone.setAngle(degInRad);
         this.skin.transform();
     }
@@ -362,7 +362,6 @@ Canvas.prototype.select = function (position) {
     }
 };
 
-
 Canvas.prototype.move = function (position) {
     if (!this.selectedObject) {
         this.select(position);
@@ -421,7 +420,9 @@ Canvas.prototype.forwardKinematics = function (position) {
     }
 
     if (this.selectedObject) {
-        //TODO add transformation matrices to bone and all its related bones
+        for(var i = 0; i < this.bones.length; i++){
+            this.bones[i].resetTranformationMatrix();
+        }
         this.cancelAll();
     }
 };
@@ -568,8 +569,11 @@ Canvas.prototype.destroyButtonClick = function () {
 };
 
 Canvas.prototype.forwardKinematicsButtonClick = function () {
-    if (this.selectedObjectType != SELECTED_OBJECT_TYPE.BONE && this.selectedObjectType != SELECTED_OBJECT_TYPE.POINT){
+    if (this.selectedObjectType != SELECTED_OBJECT_TYPE.BONE && this.selectedObjectType != SELECTED_OBJECT_TYPE.POINT) {
         this.cancelAll();
+    } else {
+        this.selectedObject.cacheAngle();
+        this.skin.cache();
     }
 
     this.app.setDescription(Resources.forwardKinematicsButton.pickBone);

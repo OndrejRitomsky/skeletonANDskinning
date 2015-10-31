@@ -34,6 +34,12 @@ Skin.prototype.transform = function () {
     }
 };
 
+Skin.prototype.cache = function (bone) {
+    for (var i = 0; i < this.points.length; i++) {
+        this.points[i].cacheCoordinates();
+    }
+};
+
 Skin.prototype.draw = function (context) {
     var position1, position2;
     for (var i = 1; i < this.points.length; i++) {
