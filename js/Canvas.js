@@ -8,7 +8,7 @@ var CANVAS_STATES = {
     DRAW_SKIN: 7
 };
 
-    var SELECTED_OBJECT_TYPE = {
+var SELECTED_OBJECT_TYPE = {
     NONE: 0,
     POINT: 1,
     BONE: 2,
@@ -82,6 +82,8 @@ function Canvas(canvas, context, app) {
     this.app.setDescription(Resources.default);
 }
 
+Canvas.prototype.SKIN_CLICK_MIN_DISTANCE = 10;
+
 Canvas.prototype.onClick = function (ev) {
     if (ev.which == 1) {
         var position = this.getCursorPosition(ev);
@@ -131,7 +133,7 @@ Canvas.prototype.leftClick = function (position, ctrlKey) {
             break;
 
         case CANVAS_STATES.DRAW_SKIN:
-            this.createSkin(position);
+            this.createSkin(position, ctrlKey);
             break;
     }
 };
@@ -243,7 +245,7 @@ Canvas.prototype.draw = function () {
     }
 
     if (this.state == CANVAS_STATES.CREATING_SKELETON && this.selectedObject) {
-        position1 = this.selectedObject.position;
+        var position1 = this.selectedObject.position;
         drawDiskPart(this.context, position1, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
         drawLine(this.context, position1, this.mousePos, SELECTED_COLOR, Bone.prototype.LINE_WIDTH);
         drawDiskPart(this.context, this.mousePos, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
@@ -262,8 +264,27 @@ Canvas.prototype.draw = function () {
     }
 };
 
-Canvas.prototype.createSkin = function (position){
-    var skinPoint = new SkinPoint(position[0], position[1]);
+Canvas.prototype.createSkin = function (position, ctrlKey) {
+    var length = this.skin.points.length;
+    var lastPoint = length > 0 ? this.skin.points[length - 1] : null;
+    var skinPoint;
+    if (ctrlKey && lastPoint) {
+        var diff = numeric['-'](position, lastPoint.coordinates);
+        var distance = Math.sqrt(Math.pow(diff[0], 2) + Math.pow(diff[1], 2));
+
+        var k = Math.floor(distance / Canvas.prototype.SKIN_CLICK_MIN_DISTANCE);
+        var dx = diff[0] / k;
+        var dy = diff[1] / k;
+        for (var i = 0; i < k; i++) {
+            var x = lastPoint.coordinates[0] + dx * i;
+            var y = lastPoint.coordinates[1] + dy * i;
+            skinPoint = new SkinPoint(x, y);
+            skinPoint.assignNearestBone(this.bones);
+            this.skin.addPoint(skinPoint);
+        }
+    }
+
+    skinPoint = new SkinPoint(position[0], position[1]);
     skinPoint.assignNearestBone(this.bones);
     this.skin.addPoint(skinPoint);
     this.app.setDescription(Resources.drawSkinButton.createSkin);
@@ -381,7 +402,7 @@ Canvas.prototype.move = function (position) {
             bone.recalculateAngle(this.selectedObject);
             for (i; i < bone.children.length; i++) {
                 var childBone = bone.children[i];
-                childBone.setStartPoint(this.selectedObject);
+                childBone.setStartPoint(this.selectedObject.position);
                 childBone.recalculateLength();
                 childBone.recalculateAngle(bone.children[i].endPoint);
 
@@ -392,7 +413,7 @@ Canvas.prototype.move = function (position) {
         } else {
             while(i < this.bones.length && this.bones[i].startPoint === this.selectedObject){
                 var bone = this.bones[i];
-                bone.setStartPoint(this.selectedObject);
+                bone.setStartPoint(this.selectedObject.position);
                 bone.recalculateLength();
                 bone.recalculateAngle(bone.endPoint);
                 for (var j = 0; j < bone.children.length; j++) {

@@ -98,7 +98,7 @@ SkinPoint.prototype.assignNearestBone = function (bones) {
         this.bones.push(bones[i]);
         this.weights.push(weights[i]);
     }
-    console.log(weights);
+    //console.log(weights);
 
     /*this.weights.push(0.8);
 
