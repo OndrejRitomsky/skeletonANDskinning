@@ -98,6 +98,7 @@ html {
 
 .active {
     background: #11A0DD;
+    height: 48px;
 }
 
 .btnContainer .btn[disabled] {
