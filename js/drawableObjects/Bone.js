@@ -170,6 +170,22 @@ Bone.prototype.addFWKTransformation = function (origin, angle) {
     }
 };
 
+/**
+ * Calculate rotation matrix of given angle about start point of this bone.
+ *
+ * @param {Number} angle
+ * @returns {*} 3x3 rotation matrix of given angle about start point of this bone.
+ */
+Bone.prototype.calculateTransformation = function (angle){
+    var tmpMatrix1 = numeric.dot(this.getTranslation(this.startPoint.position[0], this.startPoint.position[1]),
+                                    this.getRotation(angle));
+    return numeric.dot(tmpMatrix1, this.getTranslation(-this.startPoint.position[0], -this.startPoint.position[1]));
+};
+
+/**
+ * Cache current angle.
+ *
+ */
 Bone.prototype.cacheAngle = function () {
     this.cachedAngle = this.angle;
 };

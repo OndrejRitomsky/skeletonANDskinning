@@ -28,15 +28,19 @@ Skin.prototype.deleteAllPoints = function () {
  * Transform skin points.
  *
  */
-Skin.prototype.transform = function () {
+Skin.prototype.transform = function (bone, angle) {
     for (var i = 0; i < this.points.length; i++) {
-        this.points[i].transform();
+        this.points[i].transform(bone, angle);
     }
 };
 
 Skin.prototype.cache = function (bone) {
     for (var i = 0; i < this.points.length; i++) {
-        this.points[i].cacheCoordinates();
+        if(!this.points[i].isNearToJoint(bone) && this.points[i].relatedAngle == 0) {
+            this.points[i].cacheCoordinates();
+        } else {
+            this.points[i].cacheFakeCoordinates();
+        }
     }
 };
 

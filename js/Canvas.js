@@ -230,7 +230,7 @@ Canvas.prototype.update = function () {
 
         bone.addFWKTransformation(bone.startPoint, bone.cachedAngle - degInRad);
         bone.setAngle(degInRad);
-        this.skin.transform();
+        this.skin.transform(bone, bone.cachedAngle - degInRad);
     }
 };
 
@@ -446,6 +446,14 @@ Canvas.prototype.forwardKinematics = function (position) {
     }
 
     if (this.selectedObject) {
+        for(var i = 0; i < this.skin.points.length; i++){
+            if(this.skin.points[i].isNearToJoint(this.selectedObject)){
+                this.skin.points[i].cacheAngle(this.skin.points[i].relatedAngle + (this.selectedObject.cachedAngle - this.selectedObject.angle));
+            } else if(this.skin.points[i].relatedAngle != 0){
+                this.skin.points[i].transformCachedCoordinates();
+            }
+        }
+        this.skin.cache(this.selectedObject);
         for(var i = 0; i < this.bones.length; i++){
             this.bones[i].resetTranformationMatrix();
         }
@@ -607,7 +615,6 @@ Canvas.prototype.forwardKinematicsButtonClick = function () {
         this.cancelAll();
     } else {
         this.selectedObject.cacheAngle();
-        this.skin.cache();
     }
 
     this.app.setDescription(Resources.forwardKinematicsButton.pickBone);
