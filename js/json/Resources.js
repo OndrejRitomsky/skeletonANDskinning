@@ -34,7 +34,7 @@ var Resources = {
         tooltip: "Move point (sc. 'm')"
     },
 
-    removeButton: {
+    removeBoneButton: {
         tooltip: "Remove selected bones (sc. 'r')"
     },
 

@@ -59,17 +59,17 @@ Application.prototype.initEnterLeaveButtonEvents = function () {
         }
     });
 };
-
+var a;
 Application.prototype.initButtons = function () {
     var self = this;
 
     function appButtonClick(button, isStateButton) {
         if (self.activeButton) {
-            self.activeButton.removeClass("active");
+            self.activeButton.parents('.btnContainer').removeClass("active");
         }
         if (isStateButton) {
             self.stateButtonClicked = true;
-            button.addClass("active");
+            button.parents('.btnContainer').addClass("active");
             self.activeButton = button;
         }
     }
@@ -117,7 +117,7 @@ Application.prototype.initButtons = function () {
     });
     this.buttons[moveButton[0].id] = moveButton;
 
-    var removeButton = $("#remove");
+    var removeButton = $("#removeBone");
     removeButton.click(function () {
         self.canvas.destroyButtonClick();
         appButtonClick(removeButton, false);
@@ -132,12 +132,7 @@ Application.prototype.initButtons = function () {
     this.buttons[forwardKinematicsButton[0].id] = forwardKinematicsButton;
 
     // TODO update drawskin button config, when skin obj is created
-
-    for (var id in this.buttons){
-        this.buttons[id][0].style.cursor="pointer";
-    }
 };
-
 Application.prototype.enabledDisableButtons = function (selectedTypeName) {
     // disable button based on button config.canBeDisabled
     var id;

@@ -147,7 +147,7 @@ Canvas.prototype.cancelAll = function () {
     this.deselect();
     this.app.setDescription(Resources.default);
     if (this.app.activeButton){
-        this.app.activeButton.removeClass("active");
+        this.app.activeButton.parents('.btnContainer').removeClass("active");
     }
 };
 
@@ -510,9 +510,10 @@ Canvas.prototype.fenceSelectionButtonClick = function () {
 
 Canvas.prototype.drawSkeletonButtonClick = function () {
     var selectedObject = this.selectedObject;
+    var selectedObjectType = this.selectedObjectType;
     this.cancelAll();
     this.app.setDescription(Resources.drawSkeletonButton.pickPosition);
-    if (selectedObject) {
+    if (selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
         this.selectedObject = selectedObject;
         this.app.setDescription(Resources.drawSkeletonButton.createBone);
     }

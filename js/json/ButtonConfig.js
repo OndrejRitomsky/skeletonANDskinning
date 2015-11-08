@@ -26,7 +26,7 @@ var ButtonConfig = {
         }
     },
 
-    removeButton: {
+    removeBoneButton: {
         canBeDisabled: true,
         enabledWhen: {
             selectedBONE: true,
