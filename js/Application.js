@@ -59,7 +59,7 @@ Application.prototype.initEnterLeaveButtonEvents = function () {
         }
     });
 };
-var a;
+
 Application.prototype.initButtons = function () {
     var self = this;
 
@@ -167,19 +167,20 @@ Application.prototype.enabledDisableButtons = function (selectedTypeName) {
     }
 
     // special cases which cant be decided by selected points only
-    if (this.canvas.bones.length > 0 && selectedTypeName != "POINT"){
-        this.buttons["drawSkeleton"].prop("disabled","disabled");
+    if (this.canvas.bones.length > 0 && selectedTypeName != "POINT") {
+        this.buttons["drawSkeleton"].prop("disabled", "disabled");
     }
 
-    if (this.canvas.bones.length == 0){
-        this.buttons["drawSkin"].prop("disabled","disabled");
-        this.buttons["removeSkin"].prop("disabled","disabled");
+    if (this.canvas.bones.length == 0) {
+        this.buttons["drawSkin"].prop("disabled", "disabled");
+        this.buttons["removeSkin"].prop("disabled", "disabled");
     }
 
-    if (this.canvas.skin.points.length == 0){
-        this.buttons["removeSkin"].prop("disabled","disabled");
+    if (this.canvas.skin.points.length == 0) {
+        this.buttons["removeSkin"].prop("disabled", "disabled");
+    } else {
+        this.buttons["move"].prop("disabled", "disabled");
     }
-
 };
 
 Application.prototype.setDescription = function (text) {
@@ -198,36 +199,43 @@ Application.prototype.initCanvas = function () {
 
 Application.prototype.initKeyPress = function () {
     var self = this;
+
     $(document).keydown(function (e) {
+        var button = null;
         switch (e.which) {
             // "s"
             case 83:
-                self.buttons["select"].trigger("click");
+                button = self.buttons["select"];
                 break;
             // "f"
             case 70:
-                self.buttons["fenceSelect"].trigger("click");
+                button = self.buttons["fenceSelect"];
                 break;
             // "e"
             case 69:
-                self.buttons["drawSkeleton"].trigger("click");
+                button = self.buttons["drawSkeleton"];
                 break;
             // "i"
             case 73:
-                self.buttons["drawSkin"].trigger("click");
+                button = self.buttons["drawSkin"];
                 break;
             // "m"
             case 77:
-                self.buttons["move"].trigger("click");
+                button = self.buttons["move"];
                 break;
             // "r"
             case 82:
-                self.buttons["remove"].trigger("click");
+                button = self.buttons["remove"];
                 break;
             // "k"
             case 75:
-                self.buttons["forwardKinematics"].trigger("click");
+                button = self.buttons["forwardKinematics"];
                 break;
+        }
+        if (button) {
+            if (!button.prop("disabled")) {
+                button.trigger("click");
+            }
         }
     });
 };

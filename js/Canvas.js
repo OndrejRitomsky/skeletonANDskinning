@@ -244,6 +244,11 @@ Canvas.prototype.draw = function () {
         this.skin.drawCap(this.context);
     }
 
+    if (this.state == CANVAS_STATES.DRAW_SKIN && this.skin.points.length != 0) {
+        var position1 = this.skin.points[this.skin.points.length - 1].coordinates;
+        drawLine(this.context, position1, this.mousePos, DEFAULT_COLOR, 1);
+    }
+
     if (this.state == CANVAS_STATES.CREATING_SKELETON && this.selectedObject) {
         var position1 = this.selectedObject.position;
         drawDiskPart(this.context, position1, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);

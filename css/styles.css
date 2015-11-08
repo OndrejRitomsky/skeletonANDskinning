@@ -36,54 +36,62 @@ html {
     padding: 0px;
 }
 
-#reset{
+#reset {
     background: url(../images/reset.png) no-repeat;
 }
 
-#select{
+#select {
     background: url(../images/select.png) no-repeat;
 }
 
-#fenceSelect{
+#fenceSelect {
     background: url(../images/fence_select.png) no-repeat;
 }
 
-#drawSkeleton{
+#drawSkeleton {
     background: url(../images/bone_add.png) no-repeat;
 }
 
-#drawSkin{
+#drawSkin {
     background: url(../images/skin_add.png) no-repeat;
 }
 
-#move{
+#move {
     background: url(../images/move.png) no-repeat;
 }
 
-#removeBone{
+#removeBone {
     background: url(../images/bone_remove.png) no-repeat;
 }
 
-#removeSkin{
+#removeSkin {
     background: url(../images/skin_remove.png) no-repeat;
 }
 
-#forwardKinematics{
+#forwardKinematics {
     background: url(../images/fwk.png) no-repeat;
 }
 
-.btnContainer .btn  {
+.btnContainer .btn {
     width: 48px;
     height: 48px;
     border: none;
     cursor: pointer;
 }
 
-.btnContainer{
-    display: inline-block;    
+.btnContainer {
+    margin: 0px;
+    padding: 0px;
+    display: inline-block;
 }
 
-.divider{
+#controls {
+    padding: 0px;
+    margin: 0px;
+    height: 48px;
+}
+
+.divider {
     width: 48px;
     display: inline-block;
 }
@@ -92,10 +100,14 @@ html {
     background: #11A0DD;
 }
 
-.btn[disabled] {
+.btnContainer .btn[disabled] {
     background-size: 24px !important;
-    width: 24px;
-    height: 24px;
-    margin: 12px !important;
+    position: relative;
+    top: 12px;
+    left: 12px;
     cursor: default;
-}   
+}
+
+input:focus {
+    outline: none;
+}
