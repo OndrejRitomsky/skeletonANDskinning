@@ -535,7 +535,7 @@ Canvas.prototype.moveButtonClick = function () {
 
 // TODO tieto hlupe kontroly na instance tu nemusia byt, staci disablovat toto tlacitko podla selectu, napr dame classy
 // ze ake selecty podporuje
-Canvas.prototype.destroyButtonClick = function () {
+Canvas.prototype.removeBoneButtonClick = function () {
     if (!this.selectedObject) {
         return;
     }
@@ -585,6 +585,13 @@ Canvas.prototype.destroyButtonClick = function () {
         }
     }
 
+    this.deselect();
+    this.state = CANVAS_STATES.IDLE;
+    this.app.setDescription(Resources.default);
+};
+
+Canvas.prototype.removeSkinButtonClick = function () {
+    this.skin = new Skin();
     this.deselect();
     this.state = CANVAS_STATES.IDLE;
     this.app.setDescription(Resources.default);

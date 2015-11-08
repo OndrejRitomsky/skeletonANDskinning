@@ -11,6 +11,13 @@ var ButtonConfig = {
         }
     },
 
+    removeSkinButton: {
+        canBeDisabled: true,
+        enabledWhen: {
+            any: true
+        }
+    },
+
     drawSkinButton: {
         canBeDisabled: true,
         enabledWhen: {

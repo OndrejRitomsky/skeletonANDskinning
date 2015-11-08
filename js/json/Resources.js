@@ -24,7 +24,7 @@ var Resources = {
 
     drawSkinButton: {
         pickPosition: "Click on canvas to choose starting point",
-        createSkin: "Click on canvas to create skin",
+        createSkin: "Click on canvas to create skin (hold ctrl to auto create many points in one line)",
         tooltip: "Draw skin for selected connected bones (sc. 'i')"
     },
 
@@ -36,6 +36,10 @@ var Resources = {
 
     removeBoneButton: {
         tooltip: "Remove selected bones (sc. 'r')"
+    },
+
+    removeSkinButton: {
+        tooltip: "Remove all skin points"
     },
 
     forwardKinematicsButton: {

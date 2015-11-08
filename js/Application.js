@@ -117,12 +117,19 @@ Application.prototype.initButtons = function () {
     });
     this.buttons[moveButton[0].id] = moveButton;
 
-    var removeButton = $("#removeBone");
-    removeButton.click(function () {
-        self.canvas.destroyButtonClick();
-        appButtonClick(removeButton, false);
+    var removeBoneButton = $("#removeBone");
+    removeBoneButton.click(function () {
+        self.canvas.removeBoneButtonClick();
+        appButtonClick(removeBoneButton, false);
     });
-    this.buttons[removeButton[0].id] = removeButton;
+    this.buttons[removeBoneButton[0].id] = removeBoneButton;
+
+    var removeSkinButton = $("#removeSkin");
+    removeSkinButton.click(function () {
+        self.canvas.removeSkinButtonClick();
+        appButtonClick(removeSkinButton, false);
+    });
+    this.buttons[removeSkinButton[0].id] = removeSkinButton;
 
     var forwardKinematicsButton = $("#forwardKinematics");
     forwardKinematicsButton.click(function () {
@@ -133,6 +140,7 @@ Application.prototype.initButtons = function () {
 
     // TODO update drawskin button config, when skin obj is created
 };
+
 Application.prototype.enabledDisableButtons = function (selectedTypeName) {
     // disable button based on button config.canBeDisabled
     var id;
@@ -151,15 +159,27 @@ Application.prototype.enabledDisableButtons = function (selectedTypeName) {
         var button = this.buttons[id];
         var config = ButtonConfig[id + "Button"];
         if (config && config.enabledWhen) {
-            var enable = config.enabledWhen["selected" + selectedTypeName];
+            var enable = config.enabledWhen["selected" + selectedTypeName] || config.enabledWhen["any"];
             if (enable) {
                 button.prop("disabled", false);
             }
         }
     }
+
+    // special cases which cant be decided by selected points only
     if (this.canvas.bones.length > 0 && selectedTypeName != "POINT"){
         this.buttons["drawSkeleton"].prop("disabled","disabled");
     }
+
+    if (this.canvas.bones.length == 0){
+        this.buttons["drawSkin"].prop("disabled","disabled");
+        this.buttons["removeSkin"].prop("disabled","disabled");
+    }
+
+    if (this.canvas.skin.points.length == 0){
+        this.buttons["removeSkin"].prop("disabled","disabled");
+    }
+
 };
 
 Application.prototype.setDescription = function (text) {
