@@ -25,6 +25,9 @@ function Application() {
     this.buttons = {};
     this.initButtons();
 
+    this.modalWindow = $("#modalDialog");
+    this.modalIsVisible = false;
+
     this.activeButton = null;
     this.stateButtonClicked = false;
     this.savedDescription = Resources.default;
@@ -138,7 +141,25 @@ Application.prototype.initButtons = function () {
     });
     this.buttons[forwardKinematicsButton[0].id] = forwardKinematicsButton;
 
-    // TODO update drawskin button config, when skin obj is created
+    var openHelpButton = $("#openHelp");
+    openHelpButton.click(function () {
+        if (self.modalIsVisible){
+            self.modalWindow.hide();
+        } else {
+            self.modalWindow.show();
+        }
+        self.modalIsVisible = !self.modalIsVisible;
+    });
+    this.buttons[openHelpButton[0].id] = openHelpButton;
+
+    var closeHelpButton = $("#closeHelp");
+    closeHelpButton.click(function () {
+        if (self.modalIsVisible){
+            self.modalWindow.hide();
+            self.modalIsVisible = false;
+        }
+    });
+    this.buttons[closeHelpButton[0].id] = closeHelpButton;
 };
 
 Application.prototype.enabledDisableButtons = function (selectedTypeName) {
@@ -180,6 +201,7 @@ Application.prototype.enabledDisableButtons = function (selectedTypeName) {
         this.buttons["removeSkin"].prop("disabled", "disabled");
     } else {
         this.buttons["move"].prop("disabled", "disabled");
+        this.buttons["drawSkeleton"].prop("disabled", "disabled");
     }
 };
 

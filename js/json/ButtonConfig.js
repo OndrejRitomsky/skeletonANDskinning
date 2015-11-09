@@ -2,6 +2,8 @@ var ButtonConfig = {
     resetButton: {},
     selectButton: {},
     fenceSelectButton: {},
+    openHelp: {},
+    closeHelp: {},
 
     drawSkeletonButton: {
         canBeDisabled: true,

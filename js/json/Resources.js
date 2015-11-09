@@ -46,5 +46,9 @@ var Resources = {
         pickBone: "Select bone which you want to rotate",
         forward: "Click on canvas to stop moving skeleton",
         tooltip: "Forward kinematics (sc. 'k')"
+    },
+
+    openHelpButton: {
+        tooltip: "Open informations about canvas constraints"
     }
 };

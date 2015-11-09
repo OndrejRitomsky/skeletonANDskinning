@@ -36,7 +36,7 @@ html {
     padding: 0px;
 }
 
-#reset {
+#reset, #closeHelp{
     background: url(../images/reset.png) no-repeat;
 }
 
@@ -72,11 +72,29 @@ html {
     background: url(../images/fwk.png) no-repeat;
 }
 
+#openHelp {
+    background: url(../images/help.png) no-repeat;
+}
+
 .btnContainer .btn {
     width: 48px;
     height: 48px;
     border: none;
     cursor: pointer;
+}
+
+.btnContainer .mini-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    cursor: pointer;
+}
+
+.mini-btn {
+    border: none;
+    cursor: pointer;
+    background-size: 24px !important;
+    position: relative;
 }
 
 .btnContainer {
@@ -104,11 +122,43 @@ html {
 .btnContainer .btn[disabled] {
     background-size: 24px !important;
     position: relative;
-    top: 12px;
     left: 12px;
+    top: 12px;
     cursor: default;
 }
 
 input:focus {
     outline: none;
+}
+
+.right {
+    float: right;
+}
+
+#modalDialog {
+    position: absolute;
+    left: 20%;
+    top: 20%;
+    background-color: grey;
+    width: 650px;
+    border: 1px solid black;
+    color: white;
+    border-radius: 10px;
+    font-family: arial;
+    display: none;
+}
+
+#modalDialog header{
+    height: 24px;
+    border-bottom: 1px solid black;
+    padding: 5px;
+    padding-left: 40px; 
+}
+
+#modalDialog header h3{
+    display: inline;
+}
+
+#modalDialog #helpText{
+    padding: 5px;
 }

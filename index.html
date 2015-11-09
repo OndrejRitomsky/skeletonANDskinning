@@ -7,6 +7,34 @@
 </head>
 <body>
 <div id="container">
+    <div id="modalDialog">
+        <header>
+            <h3>Informations</h3>
+            <div class="btnContainer right">
+                <input type="button" class="mini-btn" id="closeHelp">
+            </div>
+        </header>
+        <ul>
+            <li>
+                There can be only one skeleton with only one skin
+            </li>
+            <li>
+                You can continue adding bones by selecting point
+            </li>
+            <li>
+                You cannot draw additional bones if skin was already created
+            </li>
+            <li>
+                You cannot move joints if skin was already created, but you can use forward kinematics
+            </li>
+            <li>
+                There is alternative mode for drawing bones and drawing skin, by holding ctrl.
+            </li>
+            <li>
+                Others button disability depends on selected type (none, joint, bone, conneted bones)
+            </li>
+        </ul>
+    </div>
     <div id="controlPanel">
         <div id="controls">
 
@@ -43,6 +71,9 @@
             <span class="divider"></span>
             <div class="btnContainer">
                 <input type="button" class="btn" id="forwardKinematics">
+            </div>
+            <div class="btnContainer right">
+                <input type="button" class="btn" id="openHelp">
             </div>
         </div>
 
