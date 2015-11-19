@@ -443,6 +443,7 @@ Canvas.prototype.forwardKinematics = function (position) {
     if (!this.selectedObject || this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
         this.select(position);
         if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
+            this.selectedObject.cacheAngle();
             this.app.setDescription(Resources.forwardKinematicsButton.forward);
         } else {
             this.app.setDescription(Resources.forwardKinematicsButton.pickBone);

@@ -45,12 +45,24 @@ function returnBiggestComponent(listOfBones) {
     actual.fill(listOfBones);
     var keyArray = actual.keyArray();
     var res = [];
+    var queue = [];
+    var bWP = findBonesWithoutParent(listOfBones);
+    if (bWP.length != 0) {
+        queue = bWP.slice();
+        for (var j = 0; j < bWP.length; j++) {
+            actual.remove(bWP[j]);
+        }
+        if (actual.isEmpty()) {
+            return queue;
+        }
+    }
+
     //BFS
     while (!actual.isEmpty()) {
-        var queue = [];
-        tmpRes.clear();
-        queue.push(keyArray[0]);
-        actual.remove(keyArray[0]);
+        if (queue.length == 0) {
+            queue.push(keyArray[0]);
+            actual.remove(keyArray[0]);
+        }
         while (queue.length > 0) {
             var bone = queue[0];
             //look at all child and ask if they are in set
@@ -76,7 +88,23 @@ function returnBiggestComponent(listOfBones) {
         if (res.length < tmpResArray.length) {
             res = tmpResArray.slice();
         }
+        queue = [];
+        tmpRes.clear();
     }
     return res;
 }
+
+function findBonesWithoutParent(bones) {
+    var result = [];
+
+    for (var i = 0; i < bones.length; i++) {
+        if(!bones[i].parent) {
+            result.push(bones[i]);
+        }
+    }
+
+    return result
+}
+
+
 

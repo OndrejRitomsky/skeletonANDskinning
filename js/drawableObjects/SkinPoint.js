@@ -89,109 +89,106 @@ SkinPoint.prototype.assignNearestBone = function (bones) {
     var nearestBone;
     var distance = Number.MAX_VALUE;
     var tmpPoint = new Point(this.coordinates);
-    for (var i = 0; i < bones.length; i++) {
+    var i;
+    for (i = 0; i < bones.length; i++) {
         var middlePoint = bones[i].startPoint.middlePoint(bones[i].endPoint);
         var tmpDist = tmpPoint.getDistance(middlePoint);
-        if (tmpDist < distance && this.testIntersect(bones[i])) {
+        if (tmpDist < distance && !this.testIntersect(bones[i])) {
             distance = tmpDist;
             nearestBone = bones[i];
         }
     }
 
-    var distances = [distance];
     var bones = [nearestBone];
     this.nearestBone = nearestBone;
     var dist;
     var parent = nearestBone.parent;
     var child = nearestBone.children[0];
-    var limit = nearestBone.length;
+    var limit = tmpPoint.getDistance(nearestBone.startPoint.middlePoint(nearestBone.endPoint))*2;
     if (parent) {
         dist = this.isCloseEnough(parent, limit);
-        if (dist > 0) {//TODO zrusit -
-            distances.push(dist);
+        if (dist > 0 && !this.testIntersect(parent)) {//TODO zrusit -
             bones.push(parent);
         }
 
-        for (var i = 0; i < parent.children.length; i++) {
+        for (i = 0; i < parent.children.length; i++) {
             child = parent.children[i];
             dist = this.isCloseEnough(child, limit);
             if (child == nearestBone) {
                 continue;
             }
 
-            var tmpPoint = new Point(this.coordinates);
             var tmpDist1 = tmpPoint.getDistance(parent.children[i].startPoint);
             var tmpDist2 = tmpPoint.getDistance(parent.children[i].endPoint);
-            if (dist > 0 && tmpDist1 < tmpDist2) {
-                var intersect = false;
-                var midPoint = child.startPoint.middlePoint(child.endPoint);
-                for (var j = 0; j < bones.length; j++) {
-                    if (this.intersects(this.coordinates, midPoint.position, bones[j].startPoint.position, bones[j].endPoint.position)) {
-                        intersect = true;
-                        break;
-                    }
-                }
-                if (!intersect) {
-                    distances.push(dist);
-                    bones.push(child);
-                }
-            }
-        }
-    }
-
-    child = nearestBone.children[0];
-    if (child) {
-        dist = this.isCloseEnough(child, limit);
-        if (dist > 0) {
-            var intersect = false;
-            var midPoint = child.startPoint.middlePoint(child.endPoint);
-            for (var j = 0; j < bones.length; j++) {
-                if (this.intersects(this.coordinates, midPoint.position, bones[j].startPoint.position, bones[j].endPoint.position)) {
-                    intersect = true;
-                    break;
-                }
-            }
-            if (!intersect) {
-                distances.push(dist);
+            if (dist > 0 && tmpDist1 < tmpDist2 && !this.testIntersect(child)) {
                 bones.push(child);
             }
         }
     }
 
-    if (bones.length == 3) {
-        if (bones[0].parent == bones[1].parent) {
-            bones.splice(2, 1);
-            distances.splice(2, 1);
-        } else if (bones[0].parent == bones[2].parent) {
-            bones.splice(1, 1);
-            distances.splice(1, 1);
-        } else if (bones[1].parent == bones[2].parent) {
-            bones.splice(3, 1);
-            distances.splice(3, 1);
+    for (i = 0; i < nearestBone.children.length; i++) {
+        child = nearestBone.children[i];
+        if (child) {
+            dist = this.isCloseEnough(child, limit);
+            if (dist > 0 && !this.testIntersect(child)) {
+                bones.push(child);
+            }
         }
     }
 
+    //2 children with same parent -> delete parent
+    if (bones.length == 3) {
+        if (bones[0].parent == bones[1].parent) {
+            bones.splice(2, 1);
+        } else if (bones[0].parent == bones[2].parent) {
+            bones.splice(1, 1);
+        } else if (bones[1].parent == bones[2].parent) {
+            bones.splice(3, 1);
+        }
+    }
+
+    this.recalculateWeights(bones);
+};
+
+SkinPoint.prototype.recalculateWeights = function (bones) {
+    var distances = [];
+    var i;
+    for (i = 0; i < bones.length; i++) {
+        distances.push(this.isCloseEnough(bones[i], Number.MAX_VALUE));
+    }
+
     var sm = 0;
-    for (var i = 0; i < distances.length; i++) {
+    for (i = 0; i < distances.length; i++) {
         sm += distances[i];
     }
+
     if (distances.length > 1) {
-        for (var i = 0; i < distances.length; i++) {
+        for (i = 0; i < distances.length; i++) {
             distances[i] = sm - distances[i];
         }
+
         sm = 0;
-        for (var i = 0; i < distances.length; i++) {
+        for (i = 0; i < distances.length; i++) {
             sm += distances[i];
         }
     }
+
     var weights = distances.map(function (x) {
         return x / sm;
     });
-    for (var i = 0; i < bones.length; i++) {
-        this.bones.push(bones[i]);
+
+    this.bones = bones;
+    for (i = 0; i < weights.length; i++) {
         this.weights.push(weights[i]);
     }
     console.log(weights);
+};
+
+SkinPoint.prototype.isCloseEnough = function (bone, limit) {
+    var tmpPoint = new Point(this.coordinates);
+    var middlePoint = bone.startPoint.middlePoint(bone.endPoint);
+    var dist = tmpPoint.getDistance(middlePoint);
+    return dist < limit ? dist : -1;
 };
 
 SkinPoint.prototype.intersects = function (p1, p2, p3, p4) {
@@ -204,13 +201,6 @@ SkinPoint.prototype.intersects = function (p1, p2, p3, p4) {
         gamma = ((p1[1] - p2[1]) * (p4[0] - p1[0]) + (p2[0] - p1[0]) * (p4[1] - p1[1])) / det;
         return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
     }
-};
-
-SkinPoint.prototype.isCloseEnough = function (bone, limit) {
-    var tmpPoint = new Point(this.coordinates);
-    var middlePoint = bone.startPoint.middlePoint(bone.endPoint);
-    var dist = tmpPoint.getDistance(middlePoint);
-    return dist < limit ? dist : -1;
 };
 
 SkinPoint.prototype.testIntersect = function (bone) {
@@ -228,5 +218,5 @@ SkinPoint.prototype.testIntersect = function (bone) {
             break;
         }
     }
-    return !intersect;
+    return intersect;
 };
