@@ -226,17 +226,28 @@ Bone.prototype.containsPoint = function (point) {
     return (this.startPoint == point || this.endPoint == point);
 };
 
-Bone.prototype.isPointConnected = function (point) {
-    if (this.parent && this.parent.containsPoint(point)) {
-        return this.parent;
-    }
+Bone.prototype.isMadeOfPoints = function (point1, point2){
+    return (this.startPoint == point1 && this.endPoint == point2)
+        || (this.startPoint == point2 && this.endPoint == point1);
+};
 
-    for (var i = 0; i < this.children.length; i++) {
-        if (this.children[i].containsPoint(point)) {
-            return this.children[i];
+Bone.prototype.isPointConnected = function (point) {
+    var bones = [];
+    if (this.parent) {
+        bones.push(this.parent);
+        bones = bones.concat(this.parent.children);
+    }
+    bones = bones.concat(this.children);
+    for (var i = 0; i < bones.length; i++) {
+        if (bones[i] == this){
+            continue;
+        }
+
+        if (bones[i].containsPoint(point)) {
+            return bones[i];
         }
     }
-    return false;
+    return null;
 };
 
 Bone.prototype.removeChild = function (bone) {

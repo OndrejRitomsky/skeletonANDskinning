@@ -58,6 +58,7 @@ function Canvas(canvas, context, app) {
 
     this.selectedObject = null;
     var selectedObjectType;
+    // TODO this might be reworked, since we disable buttons on mouse click
     Object.defineProperty(this, "selectedObjectType", {
         set: function (value) {
             selectedObjectType = value;
@@ -249,8 +250,8 @@ Canvas.prototype.draw = function () {
 
     if (this.state == CANVAS_STATES.CREATING_SKELETON && this.selectedObject) {
         var position1 = this.selectedObject.position;
-        drawDiskPart(this.context, position1, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
         drawBoneLine(this.context, position1, this.mousePos, SELECTED_COLOR, SELECTED_BONE_TIP_COLOR, Bone.prototype.LINE_WIDTH);
+        drawDiskPart(this.context, position1, Point.prototype.RADIUS, DEFAULT_COLOR, 0, 2 * Math.PI);
         drawDiskPart(this.context, this.mousePos, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
 
     } else if (this.state == CANVAS_STATES.CREATING_SKELETON && !this.selectedObject) {
@@ -344,9 +345,9 @@ Canvas.prototype.select = function (position) {
         return;
     }
 
-    // TODO fix bug with skeleton one point being parent of two points
+    var bone, isConnected;
     if (this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
-        var bone = this.selectedObject.bone;
+        bone = this.selectedObject.bone;
         if (bone && bone.containsPoint(selectedPoint)) {
             // we selected second point of bone
             bone.select();
@@ -356,34 +357,40 @@ Canvas.prototype.select = function (position) {
         }
 
         bone = selectedPoint.bone;
-        if (bone && bone.containsPoint(selectedPoint)) {
+        if (bone && bone.isMadeOfPoints(selectedPoint, this.selectedObject)) {
             bone.select();
             this.selectedObject = bone;
             this.selectedObjectType = SELECTED_OBJECT_TYPE.BONE;
         } else {
             defaultPointSelect(selectedPoint);
         }
+        return;
+    }
 
-    } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
-        var connectedBone = this.selectedObject.isPointConnected(selectedPoint);
-        if (connectedBone) {
-            connectedBone.select();
-            this.selectedObject = [this.selectedObject, connectedBone];
-            this.selectedObjectType = SELECTED_OBJECT_TYPE.ARRAY;
-        } else {
-            defaultPointSelect(selectedPoint);
-        }
+    if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
+        this.selectedObject = [this.selectedObject];
+        this.selectedObjectType = SELECTED_OBJECT_TYPE.ARRAY;
+    }
 
-    } else if (this.selectedObjectType == SELECTED_OBJECT_TYPE.ARRAY) {
+    if (this.selectedObjectType == SELECTED_OBJECT_TYPE.ARRAY) {
         var length = this.selectedObject.length;
         for (var i = 0; i < length; i++) {
-            connectedBone = this.selectedObject[i].isPointConnected(selectedPoint);
+            var connectedBone = this.selectedObject[i].isPointConnected(selectedPoint);
+
+            if (!connectedBone){
+                bone = selectedPoint.bone;
+                isConnected = bone.containsPoint(this.selectedObject[i].startPoint) || bone.containsPoint(this.selectedObject[i].endPoint);
+                connectedBone = isConnected ? bone : null;
+            }
+
             if (connectedBone) {
                 connectedBone.select();
                 this.selectedObject.push(connectedBone);
+                return;
             }
         }
     }
+    //defaultPointSelect(selectedPoint);
 };
 
 Canvas.prototype.move = function (position) {
