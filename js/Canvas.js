@@ -63,14 +63,7 @@ function Canvas(canvas, context, app) {
             selectedObjectType = value;
             if (self.state == CANVAS_STATES.IDLE || self.state == CANVAS_STATES.SELECTION
                 || self.state == CANVAS_STATES.FENCE_SELECTION) {
-                var key = "NONE";
-                for (var prop in SELECTED_OBJECT_TYPE) {
-                    if (SELECTED_OBJECT_TYPE[prop] === value) {
-                        key = prop;
-                        break;
-                    }
-                }
-                self.app.enabledDisableButtons(key);
+                self.app.enabledDisableButtons(value);
             }
         },
         get: function(){
@@ -85,6 +78,7 @@ function Canvas(canvas, context, app) {
 Canvas.prototype.SKIN_CLICK_MIN_DISTANCE = 10;
 
 Canvas.prototype.onClick = function (ev) {
+    this.app.enabledDisableButtons(this.selectedObjectType);
     if (ev.which == 1) {
         var position = this.getCursorPosition(ev);
         this.leftClick(position, ev.ctrlKey);
@@ -141,6 +135,10 @@ Canvas.prototype.leftClick = function (position, ctrlKey) {
 Canvas.prototype.cancelAll = function () {
     if (this.savedPosition && this.state == CANVAS_STATES.MOVE && this.selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
         this.selectedObject.position = this.savedPosition;
+    }
+    if (this.skin.points.length == 1){
+        // One point cant be seen but is disabling move so remove it
+        this.skin.points = [];
     }
     this.savedPosition = null;
     this.resetState();
@@ -252,7 +250,7 @@ Canvas.prototype.draw = function () {
     if (this.state == CANVAS_STATES.CREATING_SKELETON && this.selectedObject) {
         var position1 = this.selectedObject.position;
         drawDiskPart(this.context, position1, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
-        drawLine(this.context, position1, this.mousePos, SELECTED_COLOR, Bone.prototype.LINE_WIDTH);
+        drawBoneLine(this.context, position1, this.mousePos, SELECTED_COLOR, SELECTED_BONE_TIP_COLOR, Bone.prototype.LINE_WIDTH);
         drawDiskPart(this.context, this.mousePos, Point.prototype.RADIUS, SELECTED_COLOR, 0, 2 * Math.PI);
 
     } else if (this.state == CANVAS_STATES.CREATING_SKELETON && !this.selectedObject) {

@@ -1,8 +1,11 @@
 // ------------------------------ DRAW ------------------------------
 var DEFAULT_COLOR = "#000000";
-var SELECTED_COLOR = "#ff0000";
+var BONE_TIP_COLOR = "#008888";
+var SELECTED_BONE_TIP_COLOR = "#FF8888";
+var SELECTED_COLOR = "#FF0000";
 var BACKGROUND_COLOR = "#EEEEEE";
 var HIGHLIGHT_COLOR = "#2222AA";
+var HIGHLIGHT_BONE_TIP_COLOR = "#22AAFF";
 var FENCE_COLOR = "RGBA(0, 0, 64, 0.2)";
 
 function drawLine(context, position1, position2, color, width) {
@@ -12,6 +15,14 @@ function drawLine(context, position1, position2, color, width) {
     context.moveTo(position1[0], position1[1]);
     context.lineTo(position2[0], position2[1]);
     context.stroke();
+}
+
+function drawBoneLine(context, position1, position2, color, color2, width) {
+    var midPosition = [0,0,0];
+    midPosition[0] = position1[0] + (position2[0] - position1[0]) * 0.8;
+    midPosition[1] = position1[1] + (position2[1] - position1[1]) * 0.8;
+    drawLine(context, position1, midPosition, color, width);
+    drawLine(context, midPosition, position2, color2, width);
 }
 
 function drawDiskPart(context, position, radius, fillColor, fromDegree, toDegree) {

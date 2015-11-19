@@ -1,0 +1,39 @@
+#reset, #closeHelp{
+    background: url(../images/reset.png) no-repeat;
+}
+
+#select {
+    background: url(../images/select.png) no-repeat;
+}
+
+#fenceSelect {
+    background: url(../images/fence_select.png) no-repeat;
+}
+
+#drawSkeleton {
+    background: url(../images/bone_add.png) no-repeat;
+}
+
+#drawSkin {
+    background: url(../images/skin_add.png) no-repeat;
+}
+
+#move {
+    background: url(../images/move.png) no-repeat;
+}
+
+#removeBone {
+    background: url(../images/bone_remove.png) no-repeat;
+}
+
+#removeSkin {
+    background: url(../images/skin_remove.png) no-repeat;
+}
+
+#forwardKinematics {
+    background: url(../images/fwk.png) no-repeat;
+}
+
+#openHelp {
+    background: url(../images/help.png) no-repeat;
+}

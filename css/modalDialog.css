@@ -1,0 +1,27 @@
+#modalDialog {
+    position: absolute;
+    left: 20%;
+    top: 20%;
+    background-color: grey;
+    width: 650px;
+    border: 1px solid black;
+    color: white;
+    border-radius: 10px;
+    font-family: arial;
+    display: none;
+}
+
+#modalDialog header{
+    height: 24px;
+    border-bottom: 1px solid black;
+    padding: 5px;
+    padding-left: 40px;
+}
+
+#modalDialog header h3{
+    display: inline;
+}
+
+#modalDialog #helpText{
+    padding: 5px;
+}

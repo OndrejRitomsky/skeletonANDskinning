@@ -36,46 +36,6 @@ html {
     padding: 0px;
 }
 
-#reset, #closeHelp{
-    background: url(../images/reset.png) no-repeat;
-}
-
-#select {
-    background: url(../images/select.png) no-repeat;
-}
-
-#fenceSelect {
-    background: url(../images/fence_select.png) no-repeat;
-}
-
-#drawSkeleton {
-    background: url(../images/bone_add.png) no-repeat;
-}
-
-#drawSkin {
-    background: url(../images/skin_add.png) no-repeat;
-}
-
-#move {
-    background: url(../images/move.png) no-repeat;
-}
-
-#removeBone {
-    background: url(../images/bone_remove.png) no-repeat;
-}
-
-#removeSkin {
-    background: url(../images/skin_remove.png) no-repeat;
-}
-
-#forwardKinematics {
-    background: url(../images/fwk.png) no-repeat;
-}
-
-#openHelp {
-    background: url(../images/help.png) no-repeat;
-}
-
 .btnContainer .btn {
     width: 48px;
     height: 48px;
@@ -133,32 +93,4 @@ input:focus {
 
 .right {
     float: right;
-}
-
-#modalDialog {
-    position: absolute;
-    left: 20%;
-    top: 20%;
-    background-color: grey;
-    width: 650px;
-    border: 1px solid black;
-    color: white;
-    border-radius: 10px;
-    font-family: arial;
-    display: none;
-}
-
-#modalDialog header{
-    height: 24px;
-    border-bottom: 1px solid black;
-    padding: 5px;
-    padding-left: 40px; 
-}
-
-#modalDialog header h3{
-    display: inline;
-}
-
-#modalDialog #helpText{
-    padding: 5px;
 }

@@ -191,11 +191,17 @@ Bone.prototype.cacheAngle = function () {
 };
 
 Bone.prototype.draw = function (context, selected) {
+    var self = this;
+    function getColor(color, selectedColor, highlightColor) {
+        var color = selected || self.selected ? selectedColor : color;
+        return self.highlighted ? highlightColor : color;
+    }
+
     var position1 = this.startPoint.position;
     var position2 = this.endPoint.position;
-    var color = selected || this.selected ? SELECTED_COLOR : DEFAULT_COLOR;
-    color = this.highlighted ? HIGHLIGHT_COLOR : color;
-    drawLine(context, position1, position2, color, this.LINE_WIDTH);
+    var color1 = getColor(DEFAULT_COLOR, SELECTED_COLOR, HIGHLIGHT_COLOR);
+    var color2 = getColor(BONE_TIP_COLOR, SELECTED_BONE_TIP_COLOR, HIGHLIGHT_BONE_TIP_COLOR);
+    drawBoneLine(context, position1, position2, color1, color2, this.LINE_WIDTH);
     this.startPoint.draw(context, selected);
     this.endPoint.draw(context, selected);
 };

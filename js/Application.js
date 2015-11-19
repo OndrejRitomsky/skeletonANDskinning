@@ -162,7 +162,15 @@ Application.prototype.initButtons = function () {
     this.buttons[closeHelpButton[0].id] = closeHelpButton;
 };
 
-Application.prototype.enabledDisableButtons = function (selectedTypeName) {
+Application.prototype.enabledDisableButtons = function (selectedType) {
+    var selectedTypeName = "NONE";
+    for (var prop in SELECTED_OBJECT_TYPE) {
+        if (SELECTED_OBJECT_TYPE[prop] === selectedType) {
+            selectedTypeName = prop;
+            break;
+        }
+    }
+
     // disable button based on button config.canBeDisabled
     var id;
     for (id in this.buttons) {
