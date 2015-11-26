@@ -190,6 +190,31 @@ Bone.prototype.cacheAngle = function () {
     this.cachedAngle = this.angle;
 };
 
+Bone.prototype.isNeighbour = function (bone) {
+    var i;
+    if (this === bone) {
+        return true;
+    }
+    for (i = 0; i < this.children.length; i++) {
+        if (bone === this.children[i]) {
+            return true;
+        }
+    }
+    if (this.parent) {
+        if (bone === this.parent) {
+            return true;
+        }
+        for (i = 0; i < this.parent.children.length; i++) {
+            if (bone === this.parent.children[i]) {
+                return true;
+            }
+        }
+    } else if (this === bone) {
+        return true;
+    }
+    return false;
+};
+
 Bone.prototype.draw = function (context, selected) {
     var self = this;
     function getColor(color, selectedColor, highlightColor) {

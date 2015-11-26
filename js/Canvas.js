@@ -283,13 +283,13 @@ Canvas.prototype.createSkin = function (position, ctrlKey) {
             var x = lastPoint.coordinates[0] + dx * i;
             var y = lastPoint.coordinates[1] + dy * i;
             skinPoint = new SkinPoint(x, y);
-            skinPoint.assignNearestBone(this.bones);
+            skinPoint.assignNearestBone(this.bones, this.skin.points.length == 0 ? null : this.skin.points[this.skin.points.length - 1]);
             this.skin.addPoint(skinPoint);
         }
     }
 
     skinPoint = new SkinPoint(position[0], position[1]);
-    skinPoint.assignNearestBone(this.bones);
+    skinPoint.assignNearestBone(this.bones, this.skin.points.length == 0 ? null : this.skin.points[this.skin.points.length - 1]);
     this.skin.addPoint(skinPoint);
     this.app.setDescription(Resources.drawSkinButton.createSkin);
 };

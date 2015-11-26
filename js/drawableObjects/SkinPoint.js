@@ -81,33 +81,44 @@ SkinPoint.prototype.isNearToJoint = function (bone) {
 };
 
 /**
- * Find nearest bone to this point.
  *
  * @param bones
+ * @param {SkinPoint} predecessor
  */
-SkinPoint.prototype.assignNearestBone = function (bones) {
-    var nearestBone;
+SkinPoint.prototype.assignNearestBone = function (bones, predecessor) {
     var distance = Number.MAX_VALUE;
     var tmpPoint = new Point(this.coordinates);
+    var nearestBone;
+    var middlePoint;
+    var tmpDist;
     var i;
     for (i = 0; i < bones.length; i++) {
-        var middlePoint = bones[i].startPoint.middlePoint(bones[i].endPoint);
-        var tmpDist = tmpPoint.getDistance(middlePoint);
-        if (tmpDist < distance && !this.testIntersect(bones[i])) {
-            distance = tmpDist;
-            nearestBone = bones[i];
+        middlePoint = bones[i].startPoint.middlePoint(bones[i].endPoint);
+        tmpDist = tmpPoint.getDistance(middlePoint);
+        if(tmpDist < distance && !this.testIntersect(bones[i])){
+            if(predecessor){
+                if(predecessor.nearestBone.isNeighbour(bones[i])){
+                    distance = tmpDist;
+                    nearestBone = bones[i];
+                }
+            }else{
+                distance = tmpDist;
+                nearestBone = bones[i];
+            }
         }
     }
 
     var bones = [nearestBone];
     this.nearestBone = nearestBone;
-    var dist;
     var parent = nearestBone.parent;
-    var child = nearestBone.children[0];
+    var dist;
+    var child;
     var limit = tmpPoint.getDistance(nearestBone.startPoint.middlePoint(nearestBone.endPoint))*2;
+    var tmpDist1 = tmpPoint.getDistance(nearestBone.startPoint);
+    var tmpDist2 = tmpPoint.getDistance(nearestBone.endPoint);
     if (parent) {
         dist = this.isCloseEnough(parent, limit);
-        if (dist > 0 && !this.testIntersect(parent)) {//TODO zrusit -
+        if (dist > 0 && !this.testIntersect(parent) && tmpDist2 > tmpDist1) {
             bones.push(parent);
         }
 
@@ -118,9 +129,7 @@ SkinPoint.prototype.assignNearestBone = function (bones) {
                 continue;
             }
 
-            var tmpDist1 = tmpPoint.getDistance(parent.children[i].startPoint);
-            var tmpDist2 = tmpPoint.getDistance(parent.children[i].endPoint);
-            if (dist > 0 && tmpDist1 < tmpDist2 && !this.testIntersect(child)) {
+            if (dist > 0 && tmpDist2 > tmpDist1 && !this.testIntersect(child)) {
                 bones.push(child);
             }
         }
@@ -129,8 +138,7 @@ SkinPoint.prototype.assignNearestBone = function (bones) {
     for (i = 0; i < nearestBone.children.length; i++) {
         child = nearestBone.children[i];
         if (child) {
-            dist = this.isCloseEnough(child, limit);
-            if (dist > 0 && !this.testIntersect(child)) {
+            if ((!this.testIntersect(child) || nearestBone.children.length == 1) && tmpDist2 < tmpDist1) {
                 bones.push(child);
             }
         }
@@ -220,3 +228,4 @@ SkinPoint.prototype.testIntersect = function (bone) {
     }
     return intersect;
 };
+
