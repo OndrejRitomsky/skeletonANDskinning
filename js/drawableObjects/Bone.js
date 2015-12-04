@@ -209,7 +209,7 @@ Bone.prototype.isNeighbour = function (bone) {
                 return true;
             }
         }
-    } else if (this === bone) {
+    } else if (this === bone || this.startPoint === bone.startPoint) {
         return true;
     }
     return false;
