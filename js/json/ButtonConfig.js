@@ -23,7 +23,7 @@ var ButtonConfig = {
     drawSkinButton: {
         canBeDisabled: true,
         enabledWhen: {
-            selectedNONE: true
+            any: true
         }
     },
 

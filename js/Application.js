@@ -29,7 +29,7 @@ function Application() {
     this.modalIsVisible = false;
 
     this.activeButton = null;
-    this.stateButtonClicked = false;
+    this.buttonClicked = false;
     this.savedDescription = Resources.default;
     this.initEnterLeaveButtonEvents();
 
@@ -46,10 +46,10 @@ Application.prototype.initEnterLeaveButtonEvents = function () {
     }
 
     function mouseLeave() {
-        if (!self.stateButtonClicked) {
+        if (!self.buttonClicked) {
             self.setDescription(self.savedDescription);
         }
-        self.stateButtonClicked = false;
+        self.buttonClicked = false;
     }
 
     $.each(this.buttons, function (id, button) {
@@ -67,56 +67,77 @@ Application.prototype.initButtons = function () {
     var self = this;
 
     function appButtonClick(button, isStateButton) {
+        self.buttonClicked = true;
         if (self.activeButton) {
             self.activeButton.parents('.btnContainer').removeClass("active");
         }
+
         if (isStateButton) {
-            self.stateButtonClicked = true;
             button.parents('.btnContainer').addClass("active");
             self.activeButton = button;
         }
+    }
+
+    // if button is active and its clicked, action is meant to deactivate
+    function isAlreadyActive(button){
+        self.buttonClicked = true;
+        if (button == self.activeButton) {
+            self.canvas.cancelAll();
+            self.activeButton = null;
+            return true;
+        }
+        return false;
     }
 
     var resetButton = $("#reset");
     resetButton.click(function () {
         self.canvas.resetAll();
         appButtonClick(resetButton, false);
-        self.stateButtonClicked = true;
     });
     this.buttons[resetButton[0].id] = resetButton;
 
     var selectButton = $("#select");
     selectButton.click(function () {
-        self.canvas.selectionButtonClick();
-        appButtonClick(selectButton, true);
+        if (!isAlreadyActive(selectButton)){
+            self.canvas.selectionButtonClick();
+            appButtonClick(selectButton, true);
+        }
     });
     this.buttons[selectButton[0].id] = selectButton;
 
     var fenceSelectButton = $("#fenceSelect");
     fenceSelectButton.click(function () {
-        self.canvas.fenceSelectionButtonClick();
-        appButtonClick(fenceSelectButton, true);
+        if (!isAlreadyActive(fenceSelectButton)) {
+            self.canvas.fenceSelectionButtonClick();
+            appButtonClick(fenceSelectButton, true);
+        }
     });
     this.buttons[fenceSelectButton[0].id] = fenceSelectButton;
 
     var drawSkeletonButton = $("#drawSkeleton");
     drawSkeletonButton.click(function () {
-        self.canvas.drawSkeletonButtonClick();
-        appButtonClick(drawSkeletonButton, true);
+        if (!isAlreadyActive(drawSkeletonButton)) {
+            self.canvas.drawSkeletonButtonClick();
+            appButtonClick(drawSkeletonButton, true);
+        }
     });
     this.buttons[drawSkeletonButton[0].id] = drawSkeletonButton;
 
     var drawSkinButton = $("#drawSkin");
     drawSkinButton.click(function () {
-        self.canvas.drawSkinButtonClick();
-        appButtonClick(drawSkinButton, true);
+        if (!isAlreadyActive(drawSkinButton)) {
+            self.canvas.drawSkinButtonClick();
+            appButtonClick(drawSkinButton, true);
+        }
     });
     this.buttons[drawSkinButton[0].id] = drawSkinButton;
 
     var moveButton = $("#move");
     moveButton.click(function () {
-        self.canvas.moveButtonClick();
-        appButtonClick(moveButton, true);
+        if (!isAlreadyActive(moveButton)) {
+            self.canvas.moveButtonClick();
+            appButtonClick(moveButton, true);
+        }
     });
     this.buttons[moveButton[0].id] = moveButton;
 
@@ -136,8 +157,10 @@ Application.prototype.initButtons = function () {
 
     var forwardKinematicsButton = $("#forwardKinematics");
     forwardKinematicsButton.click(function () {
-        self.canvas.forwardKinematicsButtonClick();
-        appButtonClick(forwardKinematicsButton, true);
+        if (!isAlreadyActive(forwardKinematicsButton)) {
+            self.canvas.forwardKinematicsButtonClick();
+            appButtonClick(forwardKinematicsButton, true);
+        }
     });
     this.buttons[forwardKinematicsButton[0].id] = forwardKinematicsButton;
 

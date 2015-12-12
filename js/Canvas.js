@@ -86,6 +86,7 @@ Canvas.prototype.onClick = function (ev) {
     } else if (ev.which == 3) {
         this.cancelAll();
     }
+    this.app.enabledDisableButtons(this.selectedObjectType);
 };
 
 Canvas.prototype.getCursorPosition = function (ev) {
@@ -144,9 +145,11 @@ Canvas.prototype.cancelAll = function () {
     this.savedPosition = null;
     this.resetState();
     this.deselect();
+
     this.app.setDescription(Resources.default);
     if (this.app.activeButton){
         this.app.activeButton.parents('.btnContainer').removeClass("active");
+        this.app.activeButton = null;
     }
 };
 
@@ -407,7 +410,7 @@ Canvas.prototype.move = function (position) {
     if (this.selectedObject) {
         var bone = this.selectedObject.bone;
         var i = 0, j = 0;
-        if(bone) {
+        if (bone) {
             bone.length = this.selectedObject.getDistance(bone.startPoint);
             bone.recalculateAngle(this.selectedObject);
             for (i; i < bone.children.length; i++) {
@@ -547,6 +550,8 @@ Canvas.prototype.moveButtonClick = function () {
     if (selectedObjectType == SELECTED_OBJECT_TYPE.POINT) {
         this.app.setDescription(Resources.moveButton.move);
         this.selectedObject = selectedPoint;
+        this.savedPosition = selectedPoint.position;
+        this.selectedObjectType = SELECTED_OBJECT_TYPE.POINT;
         selectedPoint.select();
     }
     this.state = CANVAS_STATES.MOVE;
@@ -633,5 +638,10 @@ Canvas.prototype.forwardKinematicsButtonClick = function () {
 Canvas.prototype.drawSkinButtonClick = function () {
     this.cancelAll();
     this.state = CANVAS_STATES.DRAW_SKIN;
-    this.app.setDescription(Resources.drawSkinButton.pickPosition);
+    if (this.skin.points.length == 0){
+        this.app.setDescription(Resources.drawSkinButton.pickPosition);
+    } else {
+        this.app.setDescription(Resources.drawSkinButton.createSkin);
+    }
+
 };
