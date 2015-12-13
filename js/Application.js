@@ -75,7 +75,10 @@ Application.prototype.initButtons = function () {
         if (isStateButton) {
             button.parents('.btnContainer').addClass("active");
             self.activeButton = button;
+        } else {
+            self.activeButton = null;
         }
+        self.enabledDisableButtons(this.canvas.selectedObjectType);
     }
 
     // if button is active and its clicked, action is meant to deactivate
@@ -233,6 +236,7 @@ Application.prototype.enabledDisableButtons = function (selectedType) {
     } else {
         this.buttons["move"].prop("disabled", "disabled");
         this.buttons["drawSkeleton"].prop("disabled", "disabled");
+        this.buttons["removeBone"].prop("disabled", "disabled");
     }
 };
 

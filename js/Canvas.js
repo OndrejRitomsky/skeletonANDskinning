@@ -624,7 +624,8 @@ Canvas.prototype.removeSkinButtonClick = function () {
 Canvas.prototype.forwardKinematicsButtonClick = function () {
     if (this.selectedObjectType != SELECTED_OBJECT_TYPE.BONE && this.selectedObjectType != SELECTED_OBJECT_TYPE.POINT) {
         this.cancelAll();
-    } else {
+    }
+    if (this.selectedObjectType == SELECTED_OBJECT_TYPE.BONE) {
         this.selectedObject.cacheAngle();
     }
 
