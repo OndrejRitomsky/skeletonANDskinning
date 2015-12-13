@@ -1,3 +1,6 @@
+// creates nice transition when applying FWK on skin points
+var USE_FUNCTION_TO_MODIFY_WEIGHTS = true;
+
 function SkinPoint(x, y) {
     this.coordinates = [x, y, 1];
     this.cachedCoordinates = [x, y, 1];
@@ -49,7 +52,7 @@ SkinPoint.prototype.mulMatrixByScalar = function (matrix, scalar) {
     return result;
 };
 
-SkinPoint.prototype.cacheAngle = function(relatedAngle) {
+SkinPoint.prototype.cacheAngle = function (relatedAngle) {
     this.relatedAngle = relatedAngle;
 };
 
@@ -66,14 +69,14 @@ SkinPoint.prototype.isNearToJoint = function (bone) {
     var isNearestBone = false;
     var containParent = false;
     var containChild = false;
-    for(var i = 0; i < this.bones.length; i++){
-        if(this.bones[i] == this.nearestBone.parent) {
+    for (var i = 0; i < this.bones.length; i++) {
+        if (this.bones[i] == this.nearestBone.parent) {
             containParent = true;
         }
-        if(this.bones[i] == bone && bone != this.nearestBone.parent){
+        if (this.bones[i] == bone && bone != this.nearestBone.parent) {
             containChild = true;
         }
-        if(this.bones[i] == bone && bone == this.nearestBone){
+        if (this.bones[i] == bone && bone == this.nearestBone) {
             isNearestBone = true;
         }
     }
@@ -161,14 +164,17 @@ SkinPoint.prototype.recalculateWeights = function (bones, predecessor) {
     var p1 = new Point(this.coordinates);
     var p2 = predecessor ? new Point(predecessor.coordinates) : null;
     var dense = false;
-    if(predecessor) {
+    if (predecessor) {
         dense = p1.getDistance(p2) < 15;
     }
     var exponent = dense ? 2 : 1;
     for (i = 0; i < bones.length; i++) {
-        //maybe better distribution of weights
-        //distances.push(Math.pow(this.isCloseEnough(bones[i], Number.MAX_VALUE), exponent));
-        distances.push(this.isCloseEnough(bones[i], Number.MAX_VALUE));
+        // maybe better distribution of weights
+        if (USE_FUNCTION_TO_MODIFY_WEIGHTS) {
+            distances.push(Math.pow(this.isCloseEnough(bones[i], Number.MAX_VALUE), exponent));
+        } else {
+            distances.push(this.isCloseEnough(bones[i], Number.MAX_VALUE));
+        }
     }
 
     var sm = 0;
@@ -228,12 +234,12 @@ SkinPoint.prototype.testIntersect = function (bone) {
     var midPoint = bone.startPoint.middlePoint(bone.endPoint);
     var bones2 = [];
     bones2.concat(bone.children);
-    if(bone.parent) {
+    if (bone.parent) {
         bones2.push(bone.parent);
         bones2 = bones2.concat(bone.parent.children);
     }
     for (var j = 0; j < bones2.length; j++) {
-        if(bones2[j] == bone) {
+        if (bones2[j] == bone) {
             continue;
         } else if (this.intersects(this.coordinates, midPoint.position, bones2[j].startPoint.position, bones2[j].endPoint.position)) {
             return true;
