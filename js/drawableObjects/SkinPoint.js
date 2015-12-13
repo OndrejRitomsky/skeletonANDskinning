@@ -86,7 +86,7 @@ SkinPoint.prototype.isNearToJoint = function (bone) {
  * @param {SkinPoint} predecessor
  */
 SkinPoint.prototype.assignNearestBone = function (bones, predecessor) {
-    var distance = Number.MAX_VALUE;
+    var distanceToMid = Number.MAX_VALUE;
     var tmpPoint = new Point(this.coordinates);
     var nearestBone;
     var middlePoint;
@@ -95,14 +95,14 @@ SkinPoint.prototype.assignNearestBone = function (bones, predecessor) {
     for (i = 0; i < bones.length; i++) {
         middlePoint = bones[i].startPoint.middlePoint(bones[i].endPoint);
         tmpDist = tmpPoint.getDistance(middlePoint);
-        if(tmpDist < distance && !this.testIntersect(bones[i])){
-            if(predecessor){
-                if(predecessor.nearestBone.isNeighbour(bones[i])){
-                    distance = tmpDist;
+        if (tmpDist < distanceToMid && !this.testIntersect(bones[i])) {
+            if (predecessor) {
+                if (predecessor.nearestBone.isNeighbour(bones[i])) {
+                    distanceToMid = tmpDist;
                     nearestBone = bones[i];
                 }
-            }else{
-                distance = tmpDist;
+            } else {
+                distanceToMid = tmpDist;
                 nearestBone = bones[i];
             }
         }
@@ -111,25 +111,21 @@ SkinPoint.prototype.assignNearestBone = function (bones, predecessor) {
     var bones = [nearestBone];
     this.nearestBone = nearestBone;
     var parent = nearestBone.parent;
-    var dist;
     var child;
-    var limit = tmpPoint.getDistance(nearestBone.startPoint.middlePoint(nearestBone.endPoint))*2;
-    var tmpDist1 = tmpPoint.getDistance(nearestBone.startPoint);
-    var tmpDist2 = tmpPoint.getDistance(nearestBone.endPoint);
+    var distToStartPoint = tmpPoint.getDistance(nearestBone.startPoint);
+    var distToEndPoint = tmpPoint.getDistance(nearestBone.endPoint);
     if (parent) {
-        dist = this.isCloseEnough(parent, limit);
-        if (dist > 0 && !this.testIntersect(parent) && tmpDist2 > tmpDist1) {
+        if (!this.testIntersect(parent) && distToEndPoint > distToStartPoint) {
             bones.push(parent);
         }
 
         for (i = 0; i < parent.children.length; i++) {
             child = parent.children[i];
-            dist = this.isCloseEnough(child, limit);
             if (child == nearestBone) {
                 continue;
             }
 
-            if (dist > 0 && tmpDist2 > tmpDist1 && !this.testIntersect(child)) {
+            if (distToEndPoint > distToStartPoint && !this.testIntersect(child)) {
                 bones.push(child);
             }
         }
@@ -138,7 +134,7 @@ SkinPoint.prototype.assignNearestBone = function (bones, predecessor) {
     for (i = 0; i < nearestBone.children.length; i++) {
         child = nearestBone.children[i];
         if (child) {
-            if ((!this.testIntersect(child) || nearestBone.children.length == 1) && tmpDist2 < tmpDist1) {
+            if ((!this.testIntersect(child) || nearestBone.children.length == 1) && distToEndPoint < distToStartPoint) {
                 bones.push(child);
             }
         }
@@ -155,13 +151,23 @@ SkinPoint.prototype.assignNearestBone = function (bones, predecessor) {
         }
     }
 
-    this.recalculateWeights(bones);
+    this.bones = bones;
+    this.recalculateWeights(bones, predecessor);
 };
 
-SkinPoint.prototype.recalculateWeights = function (bones) {
+SkinPoint.prototype.recalculateWeights = function (bones, predecessor) {
     var distances = [];
     var i;
+    var p1 = new Point(this.coordinates);
+    var p2 = predecessor ? new Point(predecessor.coordinates) : null;
+    var dense = false;
+    if(predecessor) {
+        dense = p1.getDistance(p2) < 15;
+    }
+    var exponent = dense ? 2 : 1;
     for (i = 0; i < bones.length; i++) {
+        //maybe better distribution of weights
+        //distances.push(Math.pow(this.isCloseEnough(bones[i], Number.MAX_VALUE), exponent));
         distances.push(this.isCloseEnough(bones[i], Number.MAX_VALUE));
     }
 
@@ -185,11 +191,18 @@ SkinPoint.prototype.recalculateWeights = function (bones) {
         return x / sm;
     });
 
-    this.bones = bones;
     for (i = 0; i < weights.length; i++) {
         this.weights.push(weights[i]);
     }
-    console.log(weights);
+};
+
+SkinPoint.prototype.containBone = function(bone){
+    for (var i = 0; i < this.bones.length; i++){
+        if(bone === this.bones[i]){
+            return true;
+        }
+    }
+    return false;
 };
 
 SkinPoint.prototype.isCloseEnough = function (bone, limit) {
@@ -212,7 +225,6 @@ SkinPoint.prototype.intersects = function (p1, p2, p3, p4) {
 };
 
 SkinPoint.prototype.testIntersect = function (bone) {
-    var intersect = false;
     var midPoint = bone.startPoint.middlePoint(bone.endPoint);
     var bones2 = [];
     bones2.concat(bone.children);
@@ -221,11 +233,12 @@ SkinPoint.prototype.testIntersect = function (bone) {
         bones2 = bones2.concat(bone.parent.children);
     }
     for (var j = 0; j < bones2.length; j++) {
-        if (this.intersects(this.coordinates, midPoint.position, bones2[j].startPoint.position, bones2[j].endPoint.position)) {
-            intersect = true;
-            break;
+        if(bones2[j] == bone) {
+            continue;
+        } else if (this.intersects(this.coordinates, midPoint.position, bones2[j].startPoint.position, bones2[j].endPoint.position)) {
+            return true;
         }
     }
-    return intersect;
+    return false;
 };
 
